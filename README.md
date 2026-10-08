@@ -167,6 +167,7 @@ Kasero_project/
 | **HTML5**                | -       | Estructura de la interfaz              |
 | **CSS3**                 | -       | Diseño visual                          |
 | **JavaScript**           | -       | Comunicación con la API                |
+| **Supabase (PostgreSQL)**| -       | Base de datos (ver `docs/SUPABASE.md`) |
 | **PlantUML**             | -       | Modelado de arquitectura y clases      |
 | **Markdown**             | -       | Documentación y ADR                    |
 
@@ -343,6 +344,12 @@ Comprobar Maven:
 mvn -version
 ```
 
+### Base de datos (Supabase)
+
+Antes de ejecutar, configura las variables `SUPABASE_DB_URL`, `SUPABASE_DB_USER` y
+`SUPABASE_DB_PASSWORD` siguiendo [`docs/SUPABASE.md`](docs/SUPABASE.md). Al iniciar, la app crea las
+tablas y carga los datos de las 10 caseras entrevistadas (`src/main/resources/db/`).
+
 ### Construcción del proyecto
 
 Ejecutar desde la raíz de `Kasero_project`:
@@ -375,7 +382,7 @@ Ctrl + C
 
 ## 9. Credenciales de Prueba
 
-La versión actual utiliza almacenamiento en memoria para fines académicos.
+La app crea este usuario de prueba al iniciar (contraseña guardada con PBKDF2). También puedes registrarte desde la pantalla de acceso.
 
 ```text
 Correo:
