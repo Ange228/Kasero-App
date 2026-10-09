@@ -1,4 +1,9 @@
 target/
+# Frontend Angular: se genera con "npm run build" dentro de frontend/
+src/main/resources/static/
+frontend/node_modules/
+frontend/.angular/
+ng-serve.log
 .env
 *.env.local
 .idea/
