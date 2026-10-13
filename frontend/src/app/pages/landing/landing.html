@@ -1,0 +1,145 @@
+<!-- HERO -->
+<section class="hero">
+  <div class="contenedor hero-grid">
+    <div class="hero-texto">
+      <span class="pildora"><app-icono nombre="map-pin" [tam]="16" /> Mercado del Altiplano · Arequipa</span>
+      <h1>El sabor de tu mercado, a un clic de tu casa.</h1>
+      <p class="lead">Encuentra a tus caseros, cotiza tu canasta, compara precios entre puestos y recibe tu pedido como prefieras.</p>
+      <div class="ctas">
+        <a routerLink="/mercado" class="btn grande naranja">Explorar el mercado <app-icono nombre="arrow-right" [tam]="20" /></a>
+        @if (!auth.logueado()) {
+          <a routerLink="/acceso" [queryParams]="{ modo: 'registro' }" class="btn grande fantasma">Crear cuenta gratis</a>
+        }
+      </div>
+      <ul class="datos">
+        <li><strong>+200</strong> puestos</li>
+        <li><strong>7</strong> sectores</li>
+        <li><strong>3</strong> formas de entrega</li>
+        <li><strong>Yape</strong> y Plin</li>
+      </ul>
+    </div>
+
+    <div class="hero-visual" aria-hidden="true">
+      <div class="mock">
+        <div class="mock-cab"><span class="punto"></span><span class="punto"></span><span class="punto"></span></div>
+        <p class="mock-t">Tu canasta</p>
+        <div class="mock-fila"><span><app-icono nombre="sprout" [tam]="18" /> Papa · 2 kg</span><b>S/ 4.00</b></div>
+        <div class="mock-fila"><span><app-icono nombre="sprout" [tam]="18" /> Cebolla · 1 kg</span><b>S/ 2.50</b></div>
+        <div class="mock-fila"><span><app-icono nombre="cherry" [tam]="18" /> Tomate · 1 kg</span><b>S/ 4.00</b></div>
+        <div class="mock-fila"><span><app-icono nombre="carrot" [tam]="18" /> Zanahoria · 1 kg</span><b>S/ 2.00</b></div>
+        <div class="mock-rank">
+          <div><span class="etq"><app-icono nombre="badge-check" [tam]="14" /> Más económico</span><p>Pasillo 4 · Puesto 5</p></div>
+          <strong>S/ 12.50</strong>
+        </div>
+      </div>
+      <div class="flota flota-1"><app-icono nombre="star" [tam]="16" /> 4.8 · 128 calificaciones</div>
+      <div class="flota flota-2"><app-icono nombre="truck" [tam]="16" /> Envío · Recojo · Tercero</div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTORES -->
+<section class="franja">
+  <div class="contenedor chips-sector">
+    @for (s of sectores; track s.nombre) {
+      <a class="chip" routerLink="/buscar" [queryParams]="{ sector: s.nombre }"><app-icono [nombre]="s.icono" [tam]="18" />{{ s.nombre }}</a>
+    }
+  </div>
+</section>
+
+<!-- PROBLEMA -->
+<section class="bloque">
+  <div class="contenedor dos">
+    <div>
+      <p class="sobretitulo">El problema</p>
+      <h2>Los mercados de abastos siguen fuera del mundo digital.</h2>
+    </div>
+    <div class="texto-largo">
+      <p>Hoy, para saber qué tiene tu casera, a qué precio y si hay stock, tienes que ir al mercado. Los comerciantes pierden ventas a distancia y sus clientes terminan comprando en plataformas donde su casera de siempre no aparece.</p>
+      <p>Kasero es el canal digital que conecta a ambos: visibilidad para los puestos y comodidad para quienes compran.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CÓMO FUNCIONA -->
+<section class="bloque claro" id="como-funciona">
+  <div class="contenedor">
+    <p class="sobretitulo">Cómo funciona</p>
+    <h2>De tu casa a tu casera en cuatro pasos.</h2>
+    <ol class="pasos-grid">
+      @for (p of pasos; track p.titulo; let i = $index) {
+        <li class="paso">
+          <span class="num">{{ i + 1 }}</span>
+          <app-icono [nombre]="p.icono" [tam]="28" />
+          <h3>{{ p.titulo }}</h3>
+          <p>{{ p.texto }}</p>
+        </li>
+      }
+    </ol>
+  </div>
+</section>
+
+<!-- BENEFICIOS -->
+<section class="bloque">
+  <div class="contenedor">
+    <p class="sobretitulo">Todo en un solo lugar</p>
+    <h2>Pensado para comprar como en el mercado, pero más fácil.</h2>
+    <div class="beneficios">
+      @for (b of beneficios; track b.titulo) {
+        <article class="beneficio">
+          <span class="icono-caja"><app-icono [nombre]="b.icono" [tam]="24" /></span>
+          <h3>{{ b.titulo }}</h3>
+          <p>{{ b.texto }}</p>
+        </article>
+      }
+    </div>
+  </div>
+</section>
+
+<!-- COMERCIANTES -->
+<section class="comerciantes">
+  <div class="contenedor dos">
+    <div>
+      <p class="sobretitulo">Para comerciantes</p>
+      <h2>Haz visible tu puesto sin complicarte.</h2>
+      <ul class="lista-ok">
+        <li><app-icono nombre="circle-check" [tam]="20" /> Tus clientes te encuentran por pasillo, puesto y sector.</li>
+        <li><app-icono nombre="circle-check" [tam]="20" /> Recibe cotizaciones ordenadas, con productos y cantidades.</li>
+        <li><app-icono nombre="circle-check" [tam]="20" /> Publica tus promociones y novedades del mercado.</li>
+        <li><app-icono nombre="circle-check" [tam]="20" /> Sin sistemas complejos ni costo de integración.</li>
+      </ul>
+    </div>
+    <div class="tarjeta-com">
+      <div class="fila"><span class="avatar">N</span><div><strong>Tu puesto aquí</strong><p class="suave">Pasillo · Puesto · Sección</p></div></div>
+      <div class="chips" style="margin-top:14px"><span class="etq"><app-icono nombre="smartphone" [tam]="14" /> Yape</span><span class="etq"><app-icono nombre="wallet" [tam]="14" /> Plin</span><span class="etq"><app-icono nombre="truck" [tam]="14" /> Entregas</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="bloque">
+  <div class="contenedor angosto">
+    <p class="sobretitulo">Preguntas frecuentes</p>
+    <h2>Lo que más nos preguntan.</h2>
+    <div class="faq">
+      @for (q of preguntas; track q.p) {
+        <details>
+          <summary>{{ q.p }} <app-icono nombre="chevron-down" [tam]="20" /></summary>
+          <p>{{ q.r }}</p>
+        </details>
+      }
+    </div>
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<section class="cta-final">
+  <div class="contenedor">
+    <h2>Tu casera de siempre, ahora en tu celular.</h2>
+    <p>Crea tu cuenta gratis y arma tu primera canasta en minutos.</p>
+    <div class="ctas centro">
+      <a routerLink="/acceso" [queryParams]="{ modo: 'registro' }" class="btn grande claro">Crear cuenta gratis</a>
+      <a routerLink="/mercado" class="btn grande fantasma">Ver el mercado</a>
+    </div>
+  </div>
+</section>
