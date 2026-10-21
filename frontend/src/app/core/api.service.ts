@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import {
   ComercianteDetalle, Comerciante, ComparacionResponse, Cotizacion, ItemCanasta, Noticia, Pedido,
-  Producto, Promocion, ResumenPrecios, Sector, Modalidad
+  Producto, Promocion, ResumenPrecios, Sector, Modalidad, Resena, ResenaResultado
 } from './models';
 
 /** Cliente de la API REST de Kasero (Spring Boot + Supabase). */
@@ -32,4 +32,9 @@ export class Api {
     return this.http.post<Pedido>('/api/pedidos', { cotizacionId, modalidad, direccion, terceroNombre });
   }
   pedidos() { return this.http.get<Pedido[]>('/api/pedidos'); }
+
+  resenas(comercianteId: number) { return this.http.get<Resena[]>(`/api/comerciantes/${comercianteId}/resenas`); }
+  calificar(comercianteId: number, puntaje: number, comentario: string) {
+    return this.http.post<ResenaResultado>(`/api/comerciantes/${comercianteId}/resenas`, { puntaje, comentario });
+  }
 }
