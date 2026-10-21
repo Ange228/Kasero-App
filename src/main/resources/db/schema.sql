@@ -32,6 +32,20 @@ CREATE TABLE IF NOT EXISTS comerciantes (
     activo            BOOLEAN     NOT NULL DEFAULT TRUE
 );
 
+-- La calificacion se recalcula como promedio con 2 decimales al llegar reseñas
+ALTER TABLE comerciantes ALTER COLUMN calificacion TYPE NUMERIC(3,2);
+
+-- Una reseña por cliente y comerciante (solo clientes con pedido en ese puesto)
+CREATE TABLE IF NOT EXISTS resenas (
+    id             SERIAL PRIMARY KEY,
+    comerciante_id INT       NOT NULL REFERENCES comerciantes(id) ON DELETE CASCADE,
+    usuario_id     INT       NOT NULL REFERENCES usuarios(id)     ON DELETE CASCADE,
+    puntaje        INT       NOT NULL CHECK (puntaje BETWEEN 1 AND 5),
+    comentario     VARCHAR(300),
+    creada_en      TIMESTAMP NOT NULL DEFAULT NOW(),
+    UNIQUE (comerciante_id, usuario_id)
+);
+
 CREATE TABLE IF NOT EXISTS productos (
     id         SERIAL PRIMARY KEY,
     nombre     VARCHAR(60) NOT NULL UNIQUE,
