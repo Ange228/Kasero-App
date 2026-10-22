@@ -4,14 +4,15 @@ import { Api } from '../core/api.service';
 import { mensajeError } from '../core/auth.service';
 import { Canasta } from '../core/canasta.service';
 import { iconoProducto } from '../core/iconos';
-import { ComercianteDetalle } from '../core/models';
+import { ComercianteDetalle, Resena } from '../core/models';
+import { Estrellas } from '../shared/estrellas';
 import { FechaPipe, SolesPipe } from '../shared/formatos';
 import { Icono } from '../shared/icono';
 
 /** Pantalla 3 · Perfil del comerciante con su catálogo de productos. */
 @Component({
   selector: 'app-puesto',
-  imports: [RouterLink, Icono, SolesPipe, FechaPipe],
+  imports: [RouterLink, Icono, Estrellas, SolesPipe, FechaPipe],
   template: `
     <div class="contenedor pagina">
       @if (error()) {
@@ -40,6 +41,7 @@ import { Icono } from '../shared/icono';
         <div class="tabs" role="tablist">
           <button type="button" role="tab" [class.on]="tab() === 'prod'" (click)="tab.set('prod')">Productos</button>
           <button type="button" role="tab" [class.on]="tab() === 'sobre'" (click)="tab.set('sobre')">Sobre nosotros</button>
+          <button type="button" role="tab" [class.on]="tab() === 'opiniones'" (click)="tab.set('opiniones')">Opiniones ({{ opiniones().length }})</button>
         </div>
 
         @if (tab() === 'prod') {
@@ -68,6 +70,20 @@ import { Icono } from '../shared/icono';
             <a class="btn sec" routerLink="/comparar"><app-icono nombre="scale" [tam]="18" /> Comparar canasta</a>
             <span class="suave">En tu canasta: {{ canasta.cantidad() }} producto(s)</span>
           </div>
+        } @else if (tab() === 'opiniones') {
+          <div class="tarjeta resumen fila">
+            <span class="promedio">{{ d()!.comerciante.calificacion.toFixed(1) }}</span>
+            <div><app-estrellas [valor]="d()!.comerciante.calificacion" [tam]="22" /><p class="suave">{{ d()!.comerciante.numCalificaciones }} calificaciones</p></div>
+          </div>
+          @for (o of opiniones(); track o.id) {
+            <article class="tarjeta op">
+              <div class="fila entre"><strong>{{ o.usuario }}</strong><span class="suave">{{ o.fecha | fecha }}</span></div>
+              <app-estrellas [valor]="o.puntaje" />
+              @if (o.comentario) { <p>{{ o.comentario }}</p> }
+            </article>
+          } @empty {
+            <p class="vacio">Todavía no hay opiniones escritas. Si ya compraste aquí, califica desde <a routerLink="/pedidos">Mis pedidos</a>.</p>
+          }
         } @else {
           <div class="tarjeta">
             <p>{{ d()!.comerciante.nombre }} atiende en el pasillo {{ d()!.comerciante.pasillo }}, puesto {{ d()!.comerciante.nroPuesto }}, sección {{ d()!.comerciante.seccion }}.</p>
@@ -85,6 +101,9 @@ import { Icono } from '../shared/icono';
     .bloques { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; }
     .bloques .chips { margin-top: 8px; }
     .prod { display: inline-flex; gap: 8px; align-items: center; }
+    .resumen { gap: 18px; margin-bottom: 14px; }
+    .promedio { font: 600 3rem var(--font-titulo); letter-spacing: -0.05em; }
+    .op { margin-bottom: 10px; display: grid; gap: 6px; }
   `
 })
 export class Puesto {
@@ -95,13 +114,15 @@ export class Puesto {
   readonly id = input.required<string>();
   protected d = signal<ComercianteDetalle | null>(null);
   protected error = signal('');
-  protected tab = signal<'prod' | 'sobre'>('prod');
+  protected tab = signal<'prod' | 'sobre' | 'opiniones'>('prod');
+  protected opiniones = signal<Resena[]>([]);
   protected cantidades: Record<number, number> = {};
 
   constructor() {
     effect(() => {
       this.d.set(null); this.error.set('');
       this.api.puesto(+this.id()).subscribe({ next: d => this.d.set(d), error: e => this.error.set(mensajeError(e)) });
+      this.api.resenas(+this.id()).subscribe({ next: r => this.opiniones.set(r), error: () => this.opiniones.set([]) });
     });
   }
 

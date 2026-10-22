@@ -5,12 +5,13 @@ import { Api } from '../core/api.service';
 import { mensajeError } from '../core/auth.service';
 import { Cotizacion, Pedido } from '../core/models';
 import { ESTADO, FechaPipe, MODALIDAD, SolesPipe } from '../shared/formatos';
+import { Calificar } from '../shared/calificar';
 import { Icono } from '../shared/icono';
 
 /** Pantalla 8 · Mis pedidos: cotizaciones por confirmar e historial. */
 @Component({
   selector: 'app-pedidos',
-  imports: [RouterLink, Icono, SolesPipe, FechaPipe],
+  imports: [RouterLink, Icono, Calificar, SolesPipe, FechaPipe],
   template: `
     <div class="contenedor pagina">
       <h1>Mis pedidos</h1>
@@ -39,7 +40,17 @@ import { Icono } from '../shared/icono';
             <div class="fila envolver" style="margin-top:10px">
               <span class="etq"><app-icono nombre="clock" [tam]="14" /> {{ estados[p.estado] || p.estado }}</span>
               @if (p.codigoEntrega) { <span class="suave">Código de entrega: <strong>{{ p.codigoEntrega }}</strong> ({{ p.terceroNombre }})</span> }
+              @if (gracias().includes(p.id)) {
+                <span class="etq"><app-icono nombre="circle-check" [tam]="14" /> ¡Gracias por tu calificación!</span>
+              } @else {
+                <button type="button" class="btn sec" style="margin-left:auto" (click)="abierto.set(abierto() === p.id ? null : p.id)">
+                  <app-icono nombre="star" [tam]="16" /> Calificar comerciante
+                </button>
+              }
             </div>
+            @if (abierto() === p.id) {
+              <app-calificar [comercianteId]="p.comercianteId" [nombre]="p.comerciante" (listo)="agradecer(p.id)" (cancelar)="abierto.set(null)" />
+            }
           </div>
         } @empty {
           <div class="vacio">Todavía no hiciste pedidos.<br><a routerLink="/buscar">Buscar puestos</a></div>
@@ -57,6 +68,13 @@ export class Pedidos {
   protected pendientes = signal<Cotizacion[]>([]);
   protected cargando = signal(true);
   protected error = signal('');
+  protected abierto = signal<number | null>(null);
+  protected gracias = signal<number[]>([]);
+
+  protected agradecer(pedidoId: number) {
+    this.gracias.update(l => [...l, pedidoId]);
+    this.abierto.set(null);
+  }
 
   constructor() {
     forkJoin({ p: this.api.pedidos(), c: this.api.cotizaciones() }).subscribe({
