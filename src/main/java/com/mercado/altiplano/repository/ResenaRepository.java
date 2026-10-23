@@ -1,6 +1,7 @@
 package com.mercado.altiplano.repository;
 
 import com.mercado.altiplano.dto.ResenaDtos.ResenaResponse;
+import com.mercado.altiplano.model.Nombres;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
@@ -14,19 +15,13 @@ public class ResenaRepository {
     public record Calificacion(double promedio, int total) {}
 
     private static final RowMapper<ResenaResponse> MAPPER = (rs, i) -> new ResenaResponse(
-            rs.getInt(1), abreviar(rs.getString(2)), rs.getInt(3), rs.getString(4),
+            rs.getInt(1), Nombres.abreviar(rs.getString(2)), rs.getInt(3), rs.getString(4),
             rs.getTimestamp(5).toLocalDateTime().toString());
 
     private final JdbcTemplate jdbc;
 
     public ResenaRepository(JdbcTemplate jdbc) {
         this.jdbc = jdbc;
-    }
-
-    /** "Ana Pérez Soto" -> "Ana P." */
-    static String abreviar(String nombre) {
-        String[] p = nombre.trim().split("\\s+");
-        return p.length > 1 ? p[0] + " " + p[1].charAt(0) + "." : p[0];
     }
 
     public List<ResenaResponse> listar(int comercianteId) {
