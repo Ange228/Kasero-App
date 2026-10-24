@@ -379,9 +379,9 @@ mvn clean package
 mvn test
 ```
 
-61 pruebas JUnit 5 + Mockito sobre las reglas de negocio (no necesitan base de datos): hash de contraseñas,
+73 pruebas JUnit 5 + Mockito sobre las reglas de negocio (no necesitan base de datos): hash de contraseñas,
 sesiones, autenticación, búsqueda y orden, comparador de canasta, cotizaciones sin duplicados, pedidos con
-sus tres modalidades de entrega y calificaciones de comerciantes.
+sus tres modalidades de entrega, calificaciones de comerciantes y chat.
 
 ### Ejecución
 
@@ -408,6 +408,15 @@ Ctrl + C
 ## 9. Credenciales de Prueba
 
 La app crea este usuario de prueba al iniciar (contraseña guardada con PBKDF2). También puedes registrarte desde la pantalla de acceso.
+
+Para probar el **chat** con ambos lados hay una segunda cuenta, vinculada al puesto de Nilda:
+
+```text
+Comerciante: nilda@kasero.local  /  123456
+```
+
+Escribe como `demo@kasero.local` desde el perfil de Nilda (botón *Chatear*) y responde entrando como
+`nilda@kasero.local` en la sección *Mensajes* (en otra ventana o de incógnito).
 
 ```text
 Correo:

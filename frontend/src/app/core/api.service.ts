@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import {
   ComercianteDetalle, Comerciante, ComparacionResponse, Cotizacion, ItemCanasta, Noticia, Pedido,
-  Producto, Promocion, ResumenPrecios, Sector, Modalidad, Resena, ResenaResultado
+  Producto, Promocion, ResumenPrecios, Sector, Modalidad, Resena, ResenaResultado, ChatResumen, Mensaje
 } from './models';
 
 /** Cliente de la API REST de Kasero (Spring Boot + Supabase). */
@@ -32,6 +32,13 @@ export class Api {
     return this.http.post<Pedido>('/api/pedidos', { cotizacionId, modalidad, direccion, terceroNombre });
   }
   pedidos() { return this.http.get<Pedido[]>('/api/pedidos'); }
+
+  chats() { return this.http.get<ChatResumen[]>('/api/chats'); }
+  abrirChat(comercianteId: number) { return this.http.post<ChatResumen>('/api/chats', { comercianteId }); }
+  mensajes(chatId: number, despues: number) {
+    return this.http.get<Mensaje[]>(`/api/chats/${chatId}/mensajes`, { params: new HttpParams().set('despues', despues) });
+  }
+  enviarMensaje(chatId: number, texto: string) { return this.http.post<Mensaje>(`/api/chats/${chatId}/mensajes`, { texto }); }
 
   resenas(comercianteId: number) { return this.http.get<Resena[]>(`/api/comerciantes/${comercianteId}/resenas`); }
   calificar(comercianteId: number, puntaje: number, comentario: string) {
