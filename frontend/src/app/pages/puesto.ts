@@ -1,7 +1,7 @@
 import { Component, effect, inject, input, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { Api } from '../core/api.service';
-import { mensajeError } from '../core/auth.service';
+import { Auth, mensajeError } from '../core/auth.service';
 import { Canasta } from '../core/canasta.service';
 import { iconoProducto } from '../core/iconos';
 import { ComercianteDetalle, Resena } from '../core/models';
@@ -68,7 +68,9 @@ import { Icono } from '../shared/icono';
           <div class="fila envolver" style="margin-top:20px">
             <a class="btn" [routerLink]="['/cotizar', d()!.comerciante.id]"><app-icono nombre="receipt" [tam]="18" /> Cotizar / Reservar</a>
             <a class="btn sec" routerLink="/comparar"><app-icono nombre="scale" [tam]="18" /> Comparar canasta</a>
+            <button type="button" class="btn fantasma" (click)="chatear()"><app-icono nombre="message-circle" [tam]="18" /> Chatear</button>
             <span class="suave">En tu canasta: {{ canasta.cantidad() }} producto(s)</span>
+            @if (errorChat()) { <span class="msg error" role="alert">{{ errorChat() }}</span> }
           </div>
         } @else if (tab() === 'opiniones') {
           <div class="tarjeta resumen fila">
@@ -108,6 +110,8 @@ import { Icono } from '../shared/icono';
 })
 export class Puesto {
   private api = inject(Api);
+  private auth = inject(Auth);
+  private router = inject(Router);
   protected canasta = inject(Canasta);
   protected ico = iconoProducto;
 
@@ -123,6 +127,21 @@ export class Puesto {
       this.d.set(null); this.error.set('');
       this.api.puesto(+this.id()).subscribe({ next: d => this.d.set(d), error: e => this.error.set(mensajeError(e)) });
       this.api.resenas(+this.id()).subscribe({ next: r => this.opiniones.set(r), error: () => this.opiniones.set([]) });
+    });
+  }
+
+  protected errorChat = signal('');
+
+  /** Abre (o recupera) la conversación con este puesto; pide iniciar sesión si hace falta. */
+  protected chatear() {
+    if (!this.auth.logueado()) {
+      this.router.navigate(['/acceso'], { queryParams: { volver: this.router.url } });
+      return;
+    }
+    this.errorChat.set('');
+    this.api.abrirChat(+this.id()).subscribe({
+      next: c => this.router.navigate(['/chat', c.id]),
+      error: e => this.errorChat.set(mensajeError(e))
     });
   }
 
