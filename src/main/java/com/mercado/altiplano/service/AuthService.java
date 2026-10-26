@@ -31,7 +31,7 @@ public class AuthService {
         Usuario u = usuarios.buscarPorCorreo(correo.trim())
                 .filter(x -> hasher.verificar(password, x.passwordHash()))
                 .orElseThrow(() -> new AuthenticationException(MSG_INVALIDO));
-        return new LoginResponse(true, "Inicio de sesión exitoso", u.id(), u.nombre(), sesiones.crear(u.id()));
+        return new LoginResponse(true, "Inicio de sesión exitoso", u.id(), u.nombre(), sesiones.crear(u.id()), u.rol());
     }
 
     public LoginResponse registrar(String nombre, String correo, String password) {
@@ -44,7 +44,7 @@ public class AuthService {
         if (usuarios.buscarPorCorreo(correo.trim()).isPresent())
             throw new ApiException(HttpStatus.CONFLICT, "Ese correo ya está registrado");
         Usuario u = usuarios.guardar(nombre.trim(), correo.trim(), hasher.hash(password), "CLIENTE");
-        return new LoginResponse(true, "Cuenta creada", u.id(), u.nombre(), sesiones.crear(u.id()));
+        return new LoginResponse(true, "Cuenta creada", u.id(), u.nombre(), sesiones.crear(u.id()), u.rol());
     }
 
     public Usuario actual(String authorization) {
