@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { catchError, tap, throwError } from 'rxjs';
 import { LoginResponse } from './models';
 
-export interface Sesion { token: string; nombre: string; usuarioId: number; }
+export interface Sesion { token: string; nombre: string; usuarioId: number; rol?: string; }
 const CLAVE = 'kasero_sesion';
 
 /** Mensaje legible a partir de un error HTTP de la API. */
@@ -20,6 +20,7 @@ export class Auth {
 
   readonly sesion = signal<Sesion | null>(this.leer());
   readonly logueado = computed(() => this.sesion() !== null);
+  readonly esComerciante = computed(() => this.sesion()?.rol === 'COMERCIANTE');
   readonly primerNombre = computed(() => this.sesion()?.nombre.split(' ')[0] ?? '');
 
   login(correo: string, password: string) {
@@ -42,7 +43,7 @@ export class Auth {
   }
 
   private guardar(r: LoginResponse) {
-    const s: Sesion = { token: r.token, nombre: r.nombre, usuarioId: r.usuarioId };
+    const s: Sesion = { token: r.token, nombre: r.nombre, usuarioId: r.usuarioId, rol: r.rol };
     this.sesion.set(s);
     try { localStorage.setItem(CLAVE, JSON.stringify(s)); } catch { /* sin almacenamiento */ }
   }
