@@ -36,6 +36,9 @@ public class PuestoRepository {
                 ON CONFLICT (comerciante_id, producto_id)
                 DO UPDATE SET precio = EXCLUDED.precio, actualizado_en = CURRENT_DATE""",
                 comercianteId, productoId, precio);
+        // Cada cambio queda en el historial para la grafica de evolucion de precios
+        jdbc.update("INSERT INTO precios_historial (comerciante_id, producto_id, precio) VALUES (?,?,?)",
+                comercianteId, productoId, precio);
     }
 
     public boolean quitarPrecio(int comercianteId, int productoId) {
