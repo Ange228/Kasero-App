@@ -30,6 +30,7 @@ export const routes: Routes = [
   { path: 'pedidos', canActivate: [requiereSesion], title: 'Mis pedidos · Kasero', loadComponent: () => import('./pages/pedidos').then(m => m.Pedidos) },
   { path: 'chats', canActivate: [requiereSesion], title: 'Mensajes · Kasero', loadComponent: () => import('./pages/chats').then(m => m.Chats) },
   { path: 'chat/:id', canActivate: [requiereSesion], title: 'Conversación · Kasero', loadComponent: () => import('./pages/chat').then(m => m.Chat) },
+  { path: 'mapa', title: 'Mapa del mercado · Kasero', loadComponent: () => import('./pages/mapa').then(m => m.Mapa) },
   { path: 'favoritos', canActivate: [requiereSesion], title: 'Favoritos · Kasero', loadComponent: () => import('./pages/favoritos').then(m => m.FavoritosPagina) },
   { path: 'mi-puesto', canActivate: [soloComerciante], title: 'Mi puesto · Kasero', loadComponent: () => import('./pages/mi-puesto').then(m => m.MiPuesto) },
   { path: '**', redirectTo: '' }
