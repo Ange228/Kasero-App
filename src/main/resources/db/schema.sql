@@ -134,3 +134,13 @@ CREATE TABLE IF NOT EXISTS favoritos (
     creado_en      TIMESTAMP NOT NULL DEFAULT NOW(),
     PRIMARY KEY (usuario_id, comerciante_id)
 );
+
+-- Historial de precios: cada vez que un comerciante guarda un precio queda un registro
+CREATE TABLE IF NOT EXISTS precios_historial (
+    id             SERIAL PRIMARY KEY,
+    comerciante_id INT          NOT NULL REFERENCES comerciantes(id) ON DELETE CASCADE,
+    producto_id    INT          NOT NULL REFERENCES productos(id)    ON DELETE CASCADE,
+    precio         NUMERIC(8,2) NOT NULL CHECK (precio > 0),
+    registrado_en  DATE         NOT NULL DEFAULT CURRENT_DATE
+);
+CREATE INDEX IF NOT EXISTS idx_historial_fecha ON precios_historial (registrado_en);

@@ -73,3 +73,15 @@ INSERT INTO noticias (titulo, detalle) VALUES
     ('Gran sorteo por aniversario', '20 de septiembre · Mercado del Altiplano'),
     ('Nuevo horario este domingo', 'El mercado atenderá de 6 a. m. a 5 p. m.')
 ON CONFLICT (titulo) DO NOTHING;
+
+-- Historial de EJEMPLO para la grafica de evolucion (3 semanas anteriores).
+-- Solo se carga una vez, cuando la tabla esta vacia. La semana actual sale de los precios vigentes.
+INSERT INTO precios_historial (comerciante_id, producto_id, precio, registrado_en)
+SELECT pr.comerciante_id, pr.producto_id,
+       ROUND(pr.precio * (f.factor + ((p.id % 4) - 1.5) * 0.02), 2),
+       (date_trunc('week', current_date) - make_interval(weeks => f.semanas))::date + 2
+FROM precios pr
+JOIN productos p ON p.id = pr.producto_id
+JOIN (VALUES (1, 1.03), (2, 1.07), (3, 1.04)) AS f(semanas, factor) ON TRUE
+WHERE p.nombre IN ('Papa', 'Cebolla', 'Tomate', 'Zanahoria', 'Fresa', 'Plátano de seda')
+  AND NOT EXISTS (SELECT 1 FROM precios_historial);
