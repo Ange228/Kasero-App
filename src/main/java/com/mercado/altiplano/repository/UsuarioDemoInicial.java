@@ -7,8 +7,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 /**
- * Crea las cuentas de prueba (contraseña 123456) si no existen:
- * demo@kasero.local (cliente) y nilda@kasero.local (comerciante del puesto de Nilda, para responder chats).
+ * Crea las cuentas de prueba (contraseña 123456) si no existen: demo@kasero.local (cliente),
+ * nilda@kasero.local (comerciante del puesto de Nilda) y admin@kasero.local (administrador).
+ * Son solo para desarrollo: en producción deben cambiarse o eliminarse.
  */
 @Component
 public class UsuarioDemoInicial implements ApplicationRunner {
@@ -29,6 +30,9 @@ public class UsuarioDemoInicial implements ApplicationRunner {
         }
         if (usuarios.buscarPorCorreo("nilda@kasero.local").isEmpty()) {
             usuarios.guardar("Nilda (puesto 5)", "nilda@kasero.local", hasher.hash("123456"), "COMERCIANTE");
+        }
+        if (usuarios.buscarPorCorreo("admin@kasero.local").isEmpty()) {
+            usuarios.guardar("Administrador", "admin@kasero.local", hasher.hash("123456"), "ADMIN");
         }
         jdbc.update("""
                 UPDATE usuarios SET comerciante_id = (SELECT id FROM comerciantes WHERE nombre = 'Nilda')
