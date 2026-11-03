@@ -379,9 +379,14 @@ mvn clean package
 mvn test
 ```
 
-95 pruebas JUnit 5 + Mockito sobre las reglas de negocio (no necesitan base de datos): hash de contraseñas,
+110 pruebas JUnit 5 + Mockito sobre las reglas de negocio (no necesitan base de datos): hash de contraseñas,
 sesiones, autenticación, búsqueda y orden, comparador de canasta, cotizaciones sin duplicados, pedidos con
 sus tres modalidades de entrega, calificaciones de comerciantes y chat.
+
+### Integración continua y despliegue
+
+`.github/workflows/ci.yml` ejecuta en GitHub Actions las pruebas, la compilación de Angular y el empaquetado
+del JAR en cada push. Hay un `Dockerfile` listo. Ver [`docs/DESPLIEGUE.md`](docs/DESPLIEGUE.md).
 
 ### Ejecución
 
@@ -415,6 +420,9 @@ Hay una segunda cuenta, de **comerciante**, vinculada al puesto de Nilda. Con el
 ```text
 Comerciante: nilda@kasero.local  /  123456
 ```
+
+Y una tercera, de **administrador** (`admin@kasero.local` / `123456`), que abre *Administración* para
+gestionar puestos, productos, noticias y promociones, y vincular cuentas de comerciante a un puesto.
 
 Escribe como `demo@kasero.local` desde el perfil de Nilda (botón *Chatear*) y responde entrando como
 `nilda@kasero.local` en la sección *Mensajes* (en otra ventana o de incógnito).
