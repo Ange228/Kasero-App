@@ -12,7 +12,7 @@ export class Favoritos {
 
   constructor() {
     effect(() => {
-      if (this.auth.logueado() && !this.auth.esComerciante()) {
+      if (this.auth.logueado() && !this.auth.esComerciante() && !this.auth.esAdmin()) {
         this.api.favoritos().subscribe({ next: l => this.ids.set(new Set(l.map(c => c.id))), error: () => this.ids.set(new Set()) });
       } else {
         this.ids.set(new Set());

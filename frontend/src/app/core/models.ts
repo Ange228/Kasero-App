@@ -41,6 +41,15 @@ export interface ResumenPrecios { promedios: PrecioPromedio[]; masCotizados: Pro
 export interface Resena { id: number; usuario: string; puntaje: number; comentario: string | null; fecha: string; }
 export interface ResenaResultado { calificacion: number; numCalificaciones: number; resena: Resena; }
 
+export interface AdminPuesto {
+  id: number; nombre: string; nroPuesto: number; pasillo: number; seccion: string; sectorId: number; sector: string;
+  metodosPago: string; tieneCaseros: string; activo: boolean; cuenta: string | null;
+}
+export interface PuestoForm { nombre: string; nroPuesto: number; pasillo: number; seccion: string; sectorId: number; metodosPago: string; tieneCaseros: string; }
+export interface AdminProducto { id: number; nombre: string; unidad: string; sectorId: number; sector: string; }
+export interface AdminNoticia { id: number; titulo: string; detalle: string; }
+export interface AdminPromo { id: number; comerciante: string; producto: string; descuento: number; }
+
 export interface SeriePrecio { producto: string; icono: string; unidad: string; valores: (number | null)[]; variacion: number | null; }
 export interface EvolucionPrecios { semanas: string[]; series: SeriePrecio[]; variacionGeneral: number | null; }
 
