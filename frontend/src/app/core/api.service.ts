@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import {
   ComercianteDetalle, Comerciante, ComparacionResponse, Cotizacion, ItemCanasta, Noticia, Pedido,
-  Producto, Promocion, ResumenPrecios, Sector, Modalidad, Resena, ResenaResultado, ChatResumen, Mensaje, PedidoPuesto, EvolucionPrecios
+  Producto, Promocion, ResumenPrecios, Sector, Modalidad, Resena, ResenaResultado, ChatResumen, Mensaje, PedidoPuesto, EvolucionPrecios, AdminPuesto, PuestoForm, AdminProducto, AdminNoticia, AdminPromo
 } from './models';
 
 /** Cliente de la API REST de Kasero (Spring Boot + Supabase). */
@@ -33,6 +33,22 @@ export class Api {
     return this.http.post<Pedido>('/api/pedidos', { cotizacionId, modalidad, direccion, terceroNombre });
   }
   pedidos() { return this.http.get<Pedido[]>('/api/pedidos'); }
+
+  // ---- Administración ----
+  adminPuestos() { return this.http.get<AdminPuesto[]>('/api/admin/puestos'); }
+  adminCrearPuesto(f: PuestoForm) { return this.http.post('/api/admin/puestos', f); }
+  adminEditarPuesto(id: number, f: PuestoForm) { return this.http.put(`/api/admin/puestos/${id}`, f); }
+  adminActivoPuesto(id: number, activo: boolean) { return this.http.put(`/api/admin/puestos/${id}/activo`, { activo }); }
+  adminCuentaPuesto(id: number, correo: string) { return this.http.post(`/api/admin/puestos/${id}/cuenta`, { correo }); }
+  adminProductos() { return this.http.get<AdminProducto[]>('/api/admin/productos'); }
+  adminCrearProducto(f: { nombre: string; sectorId: number; unidad: string }) { return this.http.post('/api/admin/productos', f); }
+  adminEditarProducto(id: number, f: { nombre: string; sectorId: number; unidad: string }) { return this.http.put(`/api/admin/productos/${id}`, f); }
+  adminNoticias() { return this.http.get<AdminNoticia[]>('/api/admin/noticias'); }
+  adminCrearNoticia(titulo: string, detalle: string) { return this.http.post('/api/admin/noticias', { titulo, detalle }); }
+  adminBorrarNoticia(id: number) { return this.http.delete(`/api/admin/noticias/${id}`); }
+  adminPromociones() { return this.http.get<AdminPromo[]>('/api/admin/promociones'); }
+  adminGuardarPromo(comercianteId: number, productoId: number, descuento: number) { return this.http.post('/api/admin/promociones', { comercianteId, productoId, descuento }); }
+  adminBorrarPromo(id: number) { return this.http.delete(`/api/admin/promociones/${id}`); }
 
   favoritos() { return this.http.get<Comerciante[]>('/api/favoritos'); }
   agregarFavorito(id: number) { return this.http.put(`/api/favoritos/${id}`, {}); }

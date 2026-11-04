@@ -17,6 +17,14 @@ const soloComerciante: CanActivateFn = (_r, estado) => {
   return auth.esComerciante() || router.createUrlTree(['/']);
 };
 
+/** La administración solo abre con una cuenta de administrador. */
+const soloAdmin: CanActivateFn = (_r, estado) => {
+  const auth = inject(Auth);
+  const router = inject(Router);
+  if (!auth.logueado()) return router.createUrlTree(['/acceso'], { queryParams: { volver: estado.url } });
+  return auth.esAdmin() || router.createUrlTree(['/']);
+};
+
 export const routes: Routes = [
   { path: '', title: 'Kasero · Compra a tus caseros desde casa', loadComponent: () => import('./pages/landing/landing').then(m => m.Landing) },
   { path: 'acceso', title: 'Ingresar · Kasero', loadComponent: () => import('./pages/acceso/acceso').then(m => m.Acceso) },
@@ -33,5 +41,6 @@ export const routes: Routes = [
   { path: 'mapa', title: 'Mapa del mercado · Kasero', loadComponent: () => import('./pages/mapa').then(m => m.Mapa) },
   { path: 'favoritos', canActivate: [requiereSesion], title: 'Favoritos · Kasero', loadComponent: () => import('./pages/favoritos').then(m => m.FavoritosPagina) },
   { path: 'mi-puesto', canActivate: [soloComerciante], title: 'Mi puesto · Kasero', loadComponent: () => import('./pages/mi-puesto').then(m => m.MiPuesto) },
+  { path: 'admin', canActivate: [soloAdmin], title: 'Administración · Kasero', loadComponent: () => import('./pages/admin').then(m => m.Admin) },
   { path: '**', redirectTo: '' }
 ];
