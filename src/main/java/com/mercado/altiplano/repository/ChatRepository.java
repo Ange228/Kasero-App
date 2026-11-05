@@ -47,7 +47,8 @@ public class ChatRepository {
 
     /** Chats del cliente o, si la cuenta es de comerciante, los de su puesto. */
     public List<ChatListado> listado(Integer usuarioId, Integer comercianteId) {
-        String filtro = usuarioId != null ? "c.usuario_id = ?" : "c.comerciante_id = ?";
+        // Espacio inicial: los bloques de texto de Java recortan los espacios al final de "WHERE "
+        String filtro = usuarioId != null ? " c.usuario_id = ?" : " c.comerciante_id = ?";
         Object arg = usuarioId != null ? usuarioId : comercianteId;
         return jdbc.query("""
                 SELECT c.id, c.comerciante_id, co.nombre, u.nombre,
