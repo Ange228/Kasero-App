@@ -23,7 +23,9 @@ import { Logo } from './logo';
 
         <div class="acciones">
           @if (auth.logueado()) {
-            @if (auth.esComerciante()) {
+            @if (auth.esAdmin()) {
+              <a routerLink="/admin" class="btn naranja" (click)="menu.set(false)"><app-icono nombre="shield-check" [tam]="18" />Administración</a>
+            } @else if (auth.esComerciante()) {
               <a routerLink="/mi-puesto" class="btn naranja" (click)="menu.set(false)"><app-icono nombre="store" [tam]="18" />Mi puesto</a>
             } @else {
               <a routerLink="/favoritos" class="btn fantasma" title="Favoritos" (click)="menu.set(false)"><app-icono nombre="heart" [tam]="18" /><span class="txt">Favoritos</span></a>
