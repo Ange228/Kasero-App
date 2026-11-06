@@ -17,7 +17,7 @@
 .acciones { display: flex; gap: 10px; align-items: center; }
 .acciones .btn.fantasma { color: var(--texto); }
 /* En pantallas medianas, Favoritos y Mensajes se muestran solo con icono para que el header no se desborde */
-@media (min-width: 961px) and (max-width: 1279px) {
+@media (min-width: 1181px) and (max-width: 1359px) {
   .acciones .txt { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
   .acciones .btn.fantasma { padding: 0 12px; }
 }
@@ -25,7 +25,7 @@
   display: none; background: none; border: 0; color: var(--texto); width: 48px; height: 48px;
   border-radius: 12px; cursor: pointer; place-items: center;
 }
-@media (max-width: 960px) {
+@media (max-width: 1180px) {
   .interior { height: 68px; }
   .hamburguesa { display: grid; margin-left: auto; }
   .enlaces, .acciones { display: none; }

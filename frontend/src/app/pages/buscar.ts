@@ -79,9 +79,10 @@ export class Buscar {
   protected ico = iconoSector;
 
   // Parámetros de la URL (?q=&sector=&orden=), enlazados con withComponentInputBinding
-  readonly q = input('');
-  readonly sector = input('');
-  readonly orden = input('');
+  // Si el parámetro no viene en la URL, Angular entrega undefined (no el valor por defecto)
+  readonly q = input<string | undefined>('');
+  readonly sector = input<string | undefined>('');
+  readonly orden = input<string | undefined>('');
 
   protected texto = '';
   protected sectores = signal<Sector[]>([]);
@@ -92,7 +93,7 @@ export class Buscar {
   constructor() {
     this.api.sectores().subscribe(s => this.sectores.set(s));
     effect(() => {
-      const [q, sector, orden] = [this.q(), this.sector(), this.orden() || 'precio_asc'];
+      const [q, sector, orden] = [this.q() ?? '', this.sector() ?? '', this.orden() || 'precio_asc'];
       this.texto = q;
       this.cargando.set(true); this.error.set('');
       this.api.buscar(q, sector, orden).subscribe({
