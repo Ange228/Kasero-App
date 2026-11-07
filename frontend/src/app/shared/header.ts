@@ -1,47 +1,69 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, ElementRef, HostListener, computed, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { Auth } from '../core/auth.service';
-import { Canasta } from '../core/canasta.service';
 import { Icono } from './icono';
 import { Logo } from './logo';
+
+interface Enlace { ruta: string; texto: string; icono: string; exacto?: boolean; }
 
 @Component({
   selector: 'app-header',
   imports: [RouterLink, RouterLinkActive, Icono, Logo],
   template: `
-    <header class="cabecera" [class.abierto]="menu()">
+    <header class="cabecera">
       <div class="contenedor fila entre interior">
         <a routerLink="/" class="marca" aria-label="Kasero, ir al inicio" (click)="menu.set(false)"><app-logo [tam]="44" /></a>
 
         <nav class="enlaces" aria-label="Principal">
-          @for (e of enlaces; track e.ruta) {
-            <a [routerLink]="e.ruta" routerLinkActive="activo" [routerLinkActiveOptions]="{ exact: e.exacto }" (click)="menu.set(false)">
-              <app-icono [nombre]="e.icono" [tam]="18" />{{ e.texto }}
+          @for (e of enlaces(); track e.ruta) {
+            <a [routerLink]="e.ruta" routerLinkActive="activo" [routerLinkActiveOptions]="{ exact: !!e.exacto }">
+              <app-icono [nombre]="e.icono" [tam]="18" /><span>{{ e.texto }}</span>
             </a>
           }
         </nav>
 
         <div class="acciones">
-          @if (auth.logueado()) {
-            @if (auth.esAdmin()) {
-              <a routerLink="/admin" class="btn naranja" (click)="menu.set(false)"><app-icono nombre="shield-check" [tam]="18" />Administración</a>
-            } @else if (auth.esComerciante()) {
-              <a routerLink="/mi-puesto" class="btn naranja" (click)="menu.set(false)"><app-icono nombre="store" [tam]="18" />Mi puesto</a>
-            } @else {
-              <a routerLink="/favoritos" class="btn fantasma" title="Favoritos" (click)="menu.set(false)"><app-icono nombre="heart" [tam]="18" /><span class="txt">Favoritos</span></a>
-            }
-            <a routerLink="/chats" class="btn fantasma" title="Mensajes" (click)="menu.set(false)"><app-icono nombre="message-circle" [tam]="18" /><span class="txt">Mensajes</span></a>
-            <a routerLink="/pedidos" class="btn sec" (click)="menu.set(false)"><app-icono nombre="user" [tam]="18" />{{ auth.primerNombre() }}</a>
-            <button type="button" class="btn fantasma" (click)="salir()"><app-icono nombre="log-out" [tam]="18" />Salir</button>
-          } @else {
-            <a routerLink="/acceso" class="btn fantasma" (click)="menu.set(false)">Ingresar</a>
-            <a routerLink="/acceso" [queryParams]="{ modo: 'registro' }" class="btn" (click)="menu.set(false)">Crear cuenta</a>
-          }
-        </div>
+          <a routerLink="/buscar" class="icono-btn" aria-label="Buscar" title="Buscar"><app-icono nombre="search" [tam]="22" /></a>
 
-        <button type="button" class="hamburguesa" (click)="menu.set(!menu())" [attr.aria-expanded]="menu()" aria-label="Abrir menú">
-          <app-icono [nombre]="menu() ? 'x' : 'menu'" [tam]="26" />
-        </button>
+          <div class="cuenta">
+            <button type="button" class="cuenta-btn" (click)="alternar($event)" [attr.aria-expanded]="menu()" aria-haspopup="menu"
+                    [attr.aria-label]="auth.logueado() ? 'Menú de ' + auth.primerNombre() : 'Abrir menú'">
+              @if (auth.logueado()) {
+                <span class="ini">{{ auth.primerNombre().charAt(0) }}</span>
+                <span class="nom">{{ auth.primerNombre() }}</span>
+                <app-icono nombre="chevron-down" [tam]="16" />
+              } @else {
+                <app-icono [nombre]="menu() ? 'x' : 'menu'" [tam]="24" />
+              }
+            </button>
+
+            @if (menu()) {
+              <div class="panel" role="menu" (click)="menu.set(false)">
+                <div class="solo-movil">
+                  @for (e of enlaces(); track e.ruta) {
+                    <a role="menuitem" [routerLink]="e.ruta" routerLinkActive="activo"><app-icono [nombre]="e.icono" [tam]="18" />{{ e.texto }}</a>
+                  }
+                  <hr>
+                </div>
+                @if (auth.logueado()) {
+                  <p class="quien">{{ auth.sesion()?.nombre }}</p>
+                  @if (auth.esAdmin()) {
+                    <a role="menuitem" routerLink="/admin"><app-icono nombre="shield-check" [tam]="18" />Administración</a>
+                  } @else if (auth.esComerciante()) {
+                    <a role="menuitem" routerLink="/mi-puesto"><app-icono nombre="store" [tam]="18" />Mi puesto</a>
+                  } @else {
+                    <a role="menuitem" routerLink="/pedidos"><app-icono nombre="package" [tam]="18" />Mis pedidos</a>
+                  }
+                  <hr>
+                  <button type="button" role="menuitem" (click)="salir()"><app-icono nombre="log-out" [tam]="18" />Cerrar sesión</button>
+                } @else {
+                  <a role="menuitem" routerLink="/acceso"><app-icono nombre="log-in" [tam]="18" />Ingresar</a>
+                  <a role="menuitem" routerLink="/acceso" [queryParams]="{ modo: 'registro' }"><app-icono nombre="user-plus" [tam]="18" />Crear cuenta</a>
+                }
+              </div>
+            }
+          </div>
+        </div>
       </div>
     </header>
   `,
@@ -49,15 +71,29 @@ import { Logo } from './logo';
 })
 export class Header {
   protected auth = inject(Auth);
-  protected canasta = inject(Canasta);
+  private el = inject(ElementRef<HTMLElement>);
   protected menu = signal(false);
-  protected enlaces = [
-    { ruta: '/mercado', texto: 'Mercado', icono: 'shopping-basket', exacto: true },
-    { ruta: '/buscar', texto: 'Buscar', icono: 'search', exacto: false },
-    { ruta: '/comparar', texto: 'Comparar', icono: 'scale', exacto: false },
-    { ruta: '/precios', texto: 'Precios', icono: 'tag', exacto: false },
-    { ruta: '/mapa', texto: 'Mapa', icono: 'map-pin', exacto: false }
-  ];
 
+  /** Mercado, Comparar, Precios y Caseros son públicos; Favoritos y Cotizar/Reservar solo con sesión iniciada. */
+  protected enlaces = computed<Enlace[]>(() => {
+    const base: Enlace[] = [
+      { ruta: '/mercado', texto: 'Mercado', icono: 'shopping-basket', exacto: true },
+      { ruta: '/comparar', texto: 'Comparar', icono: 'scale' },
+      { ruta: '/precios', texto: 'Precios', icono: 'tag' },
+      { ruta: '/mapa', texto: 'Caseros', icono: 'users' }
+    ];
+    if (!this.auth.logueado()) return base;
+    if (!this.auth.esComerciante() && !this.auth.esAdmin()) base.push({ ruta: '/favoritos', texto: 'Favoritos', icono: 'heart' });
+    base.push({ ruta: '/chats', texto: this.auth.esComerciante() ? 'Mensajes' : 'Cotizar/Reservar', icono: 'message-circle' });
+    return base;
+  });
+
+  protected alternar(ev: Event) { ev.stopPropagation(); this.menu.update(v => !v); }
   protected salir() { this.menu.set(false); this.auth.salir(); }
+
+  @HostListener('document:click', ['$event'])
+  protected fuera(ev: Event) { if (!this.el.nativeElement.contains(ev.target)) this.menu.set(false); }
+
+  @HostListener('document:keydown.escape')
+  protected escape() { this.menu.set(false); }
 }
