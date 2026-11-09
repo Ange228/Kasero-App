@@ -14,7 +14,7 @@ public class CatalogoRepository {
 
     /** Fila basica de comerciante, antes de armar el DTO. */
     public record ComBase(int id, String nombre, int nro, int pasillo, String seccion, String sector,
-                          String pagos, String caseros, double cal, int ncal, int cot) {}
+                          String pagos, String caseros, double cal, int ncal, int cot, String horario) {}
 
     private final JdbcTemplate jdbc;
 
@@ -30,14 +30,14 @@ public class CatalogoRepository {
     public List<ComBase> comerciantes() {
         return jdbc.query("""
                 SELECT c.id, c.nombre, c.nro_puesto, c.pasillo, c.seccion, s.nombre AS sector,
-                       c.metodos_pago, c.tiene_caseros, c.calificacion, c.num_calificaciones, c.cotizaciones
+                       c.metodos_pago, c.tiene_caseros, c.calificacion, c.num_calificaciones, c.cotizaciones, c.horario
                 FROM comerciantes c JOIN sectores s ON s.id = c.sector_id
                 WHERE c.activo ORDER BY c.pasillo, c.nro_puesto""",
                 (rs, i) -> new ComBase(rs.getInt("id"), rs.getString("nombre"), rs.getInt("nro_puesto"),
                         rs.getInt("pasillo"), rs.getString("seccion"), rs.getString("sector"),
                         rs.getString("metodos_pago"), rs.getString("tiene_caseros"),
                         rs.getDouble("calificacion"), rs.getInt("num_calificaciones"),
-                        rs.getInt("cotizaciones")));
+                        rs.getInt("cotizaciones"), rs.getString("horario")));
     }
 
     public Map<Integer, List<PrecioItem>> preciosPorComerciante() {
