@@ -6,7 +6,7 @@ export interface PrecioItem { productoId: number; nombre: string; icono: string;
 export interface Comerciante {
   id: number; nombre: string; iniciales: string; nroPuesto: number; pasillo: number; seccion: string;
   sector: string; metodosPago: string[]; tieneCaseros: string; calificacion: number;
-  numCalificaciones: number; cotizaciones: number; precioMedio: number | null; productos: string[];
+  numCalificaciones: number; cotizaciones: number; precioMedio: number | null; productos: string[]; horario: string | null;
 }
 export interface ComercianteDetalle { comerciante: Comerciante; precios: PrecioItem[]; modalidades: string[]; }
 
