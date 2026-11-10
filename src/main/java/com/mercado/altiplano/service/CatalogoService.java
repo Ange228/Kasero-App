@@ -87,7 +87,7 @@ public class CatalogoService {
                 : c.nombre().substring(0, Math.min(2, c.nombre().length()));
         return new Comerciante(c.id(), c.nombre(), ini.toUpperCase(), c.nro(), c.pasillo(), c.seccion(),
                 c.sector(), pagos, c.caseros(), c.cal(), c.ncal(), c.cot(), medio,
-                precios.stream().map(PrecioItem::nombre).toList());
+                precios.stream().map(PrecioItem::nombre).toList(), c.horario());
     }
 
     static String normalizar(String s) {

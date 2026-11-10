@@ -32,6 +32,9 @@ CREATE TABLE IF NOT EXISTS comerciantes (
     activo            BOOLEAN     NOT NULL DEFAULT TRUE
 );
 
+-- Horario de atencion que se muestra en "Sobre <casero>"
+ALTER TABLE comerciantes ADD COLUMN IF NOT EXISTS horario VARCHAR(80);
+
 -- La calificacion se recalcula como promedio con 2 decimales al llegar reseñas
 ALTER TABLE comerciantes ALTER COLUMN calificacion TYPE NUMERIC(3,2);
 
