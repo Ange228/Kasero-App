@@ -1,10 +1,11 @@
-import { Component, effect, inject, input, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { Api } from '../core/api.service';
 import { mensajeError } from '../core/auth.service';
 import { NOMBRES_CATEGORIA } from '../core/categorias';
 import { iconoSector } from '../core/iconos';
+import { deTemporada, esFruta } from '../core/temporada';
 import { Comerciante, Sector } from '../core/models';
 import { Icono } from '../shared/icono';
 import { PuestoCard } from '../shared/puesto-card';
@@ -42,6 +43,12 @@ import { PuestoCard } from '../shared/puesto-card';
               </button>
             }
           </div>
+          @if (sector() === 'Frutas') {
+            <button type="button" class="temporada" [class.on]="soloTemporada()" [attr.aria-pressed]="soloTemporada()" (click)="soloTemporada.set(!soloTemporada())">
+              <app-icono nombre="sun" [tam]="22" />
+              <span><strong>Fruta de temporada</strong><small>{{ nombresTemporada }}</small></span>
+            </button>
+          }
           <label for="orden">Ordenar por</label>
           <select id="orden" [ngModel]="orden() || 'precio_asc'" (ngModelChange)="aplicar({ orden: $event })">
             <option value="precio_asc">Menor precio</option>
@@ -58,10 +65,10 @@ import { PuestoCard } from '../shared/puesto-card';
           } @else if (cargando()) {
             <p class="cargando" role="status">Buscando…</p>
           } @else {
-            <p class="suave" style="margin-bottom:12px">{{ sector() || 'Todos los sectores' }} · {{ lista().length }} resultado(s)</p>
-            @if (lista().length) {
+            <p class="suave" style="margin-bottom:12px">{{ sector() || 'Todos los sectores' }} · {{ visibles().length }} resultado(s)</p>
+            @if (visibles().length) {
               <div class="grid g2">
-                @for (c of lista(); track c.id; let i = $index) {
+                @for (c of visibles(); track c.id; let i = $index) {
                   <app-puesto-card [c]="c" [etiqueta]="i === 0 && (orden() || 'precio_asc') === 'precio_asc' ? 'Más económico' : ''" />
                 }
               </div>
@@ -83,6 +90,12 @@ import { PuestoCard } from '../shared/puesto-card';
     .busca { display: flex; align-items: center; gap: 10px; background: #fff; border-radius: 999px; padding: 6px 6px 6px 18px; color: #5b665b; max-width: 640px; }
     .busca input { border: 0; background: transparent; min-height: 44px; padding: 0; color: #1b251b; }
     .busca input:focus { outline: none; }
+    .temporada { display: flex; align-items: center; gap: 12px; text-align: left; padding: 14px 16px; border-radius: 16px; cursor: pointer;
+      background: var(--naranja-cl, #fdf0de); border: 1.5px solid var(--naranja); color: var(--texto); font: inherit; }
+    .temporada span { display: grid; gap: 2px; }
+    .temporada small { color: var(--suave); }
+    .temporada.on { background: var(--naranja); color: #1a1100; }
+    .temporada.on small { color: #3a2a08; }
     .cuerpo { display: grid; grid-template-columns: 260px 1fr; gap: 24px; margin-top: 22px; align-items: start; }
     .filtros { position: sticky; top: calc(var(--alto-header) + 16px); display: grid; gap: 12px; }
     @media (max-width: 860px) { .cuerpo { grid-template-columns: 1fr; } .filtros { position: static; } }
@@ -99,6 +112,13 @@ export class Buscar {
   readonly sector = input<string | undefined>('');
   readonly orden = input<string | undefined>('');
 
+  protected soloTemporada = signal(false);
+  private frutasTemporada = deTemporada().filter(esFruta);
+  protected nombresTemporada = this.frutasTemporada.join(', ');
+  /** Con el botón de temporada, solo los puestos que venden alguna fruta de temporada. */
+  protected visibles = computed(() => this.soloTemporada() && this.sector() === 'Frutas'
+    ? this.lista().filter(c => c.productos.some(p => this.frutasTemporada.includes(p)))
+    : this.lista());
   protected texto = '';
   protected sectores = signal<Sector[]>([]);
   protected lista = signal<Comerciante[]>([]);
