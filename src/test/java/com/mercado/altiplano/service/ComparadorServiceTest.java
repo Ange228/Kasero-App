@@ -20,7 +20,7 @@ class ComparadorServiceTest {
     private ComparadorService comparador;
 
     private static ComBase com(int id, String nombre) {
-        return new ComBase(id, nombre, id, 4, "Verduras", "Verduras", "Yape", "Sí", 4.5, 10, 0);
+        return new ComBase(id, nombre, id, 4, "Verduras", "Verduras", "Yape", "Sí", 4.5, 10, 0, "Lunes a sábado");
     }
 
     private static PrecioItem p(int pid, String nombre, String precio) {

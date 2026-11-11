@@ -23,7 +23,7 @@ class FavoritoServiceTest {
 
     private static Comerciante com(int id, String nombre) {
         return new Comerciante(id, nombre, "XX", id, 1, "Verduras", "Verduras", List.of("Yape"), "Sí", 4.5, 10, 0,
-                new BigDecimal("2.00"), List.of());
+                new BigDecimal("2.00"), List.of(), "Lunes a sábado");
     }
 
     @BeforeEach
