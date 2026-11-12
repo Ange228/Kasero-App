@@ -2,6 +2,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { Api } from '../core/api.service';
 import { mensajeError } from '../core/auth.service';
 import { iconoProducto } from '../core/iconos';
+import { deTemporada } from '../core/temporada';
 import { EvolucionPrecios, ResumenPrecios } from '../core/models';
 import { SolesPipe } from '../shared/formatos';
 import { GraficoLineas } from '../shared/grafico-lineas';
@@ -19,7 +20,7 @@ import { Icono } from '../shared/icono';
       } @else if (!r()) {
         <p class="cargando" role="status">Cargando precios…</p>
       } @else {
-        <div class="grid g2">
+        <div class="grid tres">
           <section class="tarjeta">
             <h3 class="tit"><app-icono nombre="trending-up" [tam]="20" /> Productos más cotizados</h3>
             @for (p of r()!.masCotizados; track p.producto; let i = $index) {
@@ -27,10 +28,16 @@ import { Icono } from '../shared/icono';
             } @empty { <p class="suave">Aún no hay cotizaciones registradas.</p> }
           </section>
           <section class="tarjeta">
-            <h3 class="tit"><app-icono nombre="package" [tam]="20" /> Productos más comprados</h3>
+            <h3 class="tit"><app-icono nombre="package" [tam]="20" /> Productos más vendidos</h3>
             @for (p of r()!.masComprados; track p.producto; let i = $index) {
               <div class="fila entre linea"><span>{{ i + 1 }}. <app-icono [nombre]="ico(p.producto)" [tam]="16" /> {{ p.producto }}</span><span class="precio">{{ p.cantidad }}</span></div>
-            } @empty { <p class="suave">Aún no hay pedidos registrados.</p> }
+            } @empty { <p class="suave">Aún no hay ventas registradas.</p> }
+          </section>
+          <section class="tarjeta">
+            <h3 class="tit"><app-icono nombre="sun" [tam]="20" /> Productos de temporada</h3>
+            @for (p of temporada(); track p.producto) {
+              <div class="fila entre linea"><span><app-icono [nombre]="ico(p.producto)" [tam]="16" /> {{ p.producto }}</span><span class="precio">{{ p.promedio | soles }} / {{ p.unidad }}</span></div>
+            } @empty { <p class="suave">No hay productos de temporada con precio este mes.</p> }
           </section>
         </div>
 
@@ -85,6 +92,7 @@ import { Icono } from '../shared/icono';
     </div>
   `,
   styles: `
+    .tres { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
     .tit { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; }
     .linea { padding: 8px 0; border-bottom: 1px solid var(--borde); }
     .linea span:first-child { display: inline-flex; gap: 6px; align-items: center; }
@@ -108,6 +116,12 @@ export class Precios {
   /** Solo se grafican los productos con al menos dos semanas de datos (máximo 6 líneas). */
   protected grafica = computed(() => (this.evolucion()?.series ?? [])
     .filter(s => s.valores.filter(v => v !== null).length >= 2).slice(0, 6));
+
+  /** Productos de temporada este mes que tienen precio en algún puesto. */
+  protected temporada = computed(() => {
+    const nombres = deTemporada();
+    return (this.r()?.promedios ?? []).filter(p => nombres.includes(p.producto));
+  });
 
   constructor() {
     this.api.resumenPrecios().subscribe({ next: r => this.r.set(r), error: e => this.error.set(mensajeError(e)) });
