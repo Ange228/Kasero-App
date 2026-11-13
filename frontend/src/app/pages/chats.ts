@@ -12,7 +12,7 @@ import { Icono } from '../shared/icono';
   imports: [RouterLink, Icono, FechaPipe],
   template: `
     <div class="contenedor pagina angosto">
-      <h1>Mensajes</h1>
+      <h1>Cotizar / Reservar</h1>
       @if (error()) {
         <div class="msg error" role="alert">{{ error() }}</div>
       } @else if (cargando()) {
