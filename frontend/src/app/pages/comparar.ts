@@ -18,7 +18,7 @@ import { Icono } from '../shared/icono';
 
       @if (sugeridos().length) {
         <section class="tarjeta">
-          <strong>Los más comprados</strong>
+          <strong>{{ resumen()?.masComprados?.length ? 'Los más comprados' : 'Productos' }}</strong>
           <div class="chips">
             @for (p of sugeridos(); track p.id) {
               <button type="button" class="chip" [class.on]="elegido() === p.id" (click)="elegir(p.id)">

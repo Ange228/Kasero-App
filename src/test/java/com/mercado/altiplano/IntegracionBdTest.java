@@ -136,7 +136,7 @@ class IntegracionBdTest {
     void laBusquedaYElPerfilFuncionanContraLaBase() {
         assertThat(catalogo.buscar("papa", null, null)).extracting(Comerciante::nombre).contains("Nilda", "Angela", "Lourdes");
         assertThat(catalogo.buscar("pollo", null, null)).extracting(Comerciante::nombre).contains("Melany", "Luis Alberto");
-        assertThat(catalogo.buscar(null, "Carnes", "calificacion")).hasSize(3);
+        assertThat(catalogo.buscar(null, "Carnes", "calificacion")).hasSize(4); // Micaela, María, Melany y Luis Alberto (comida preparada reubicada)
         assertThat(catalogo.detalle(idNilda).precios()).hasSize(4);
         assertThat(catalogo.promociones()).isNotEmpty();
         assertThat(catalogo.noticias()).hasSize(2);
