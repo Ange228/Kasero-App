@@ -25,7 +25,7 @@ import { Icono } from '../shared/icono';
             <span class="suave">{{ c.fecha | fecha }}</span>
           </a>
         } @empty {
-          <div class="vacio">Aún no tienes conversaciones.<br>Entra al perfil de un puesto y pulsa <strong>Chatear</strong>.<br><a routerLink="/buscar">Buscar puestos</a></div>
+          <div class="vacio">Aún no tienes conversaciones.<br>Entra al perfil de un puesto y pulsa <strong>Cotizar / Reservar</strong>.<br><a routerLink="/mercado">Buscar puestos</a></div>
         }
       }
     </div>
