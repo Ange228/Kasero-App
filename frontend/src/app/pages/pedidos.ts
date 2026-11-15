@@ -53,7 +53,7 @@ import { Icono } from '../shared/icono';
             }
           </div>
         } @empty {
-          <div class="vacio">Todavía no hiciste pedidos.<br><a routerLink="/buscar">Buscar puestos</a></div>
+          <div class="vacio">Todavía no hiciste pedidos.<br><a routerLink="/mercado">Buscar puestos</a></div>
         }
       }
     </div>
