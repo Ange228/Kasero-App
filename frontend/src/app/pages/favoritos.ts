@@ -20,7 +20,7 @@ import { PuestoCard } from '../shared/puesto-card';
       } @else if (lista().length) {
         <div class="grid g2">@for (c of lista(); track c.id) { <app-puesto-card [c]="c" /> }</div>
       } @else {
-        <div class="vacio">Todavía no guardaste puestos.<br>Pulsa el corazón en el perfil de tu casera de siempre.<br><a routerLink="/buscar">Buscar puestos</a></div>
+        <div class="vacio">Todavía no guardaste puestos.<br>Pulsa el corazón en el perfil de tu casera de siempre.<br><a routerLink="/mercado">Buscar puestos</a></div>
       }
     </div>
   `
