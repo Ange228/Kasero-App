@@ -29,10 +29,8 @@ export class Landing {
   ];
 
   protected sectores = [
-    { nombre: 'Verduras', icono: 'sprout' }, { nombre: 'Frutas', icono: 'apple' },
-    { nombre: 'Carnes', icono: 'beef' }, { nombre: 'Pescados', icono: 'fish' },
-    { nombre: 'Abarrotes', icono: 'wheat' }, { nombre: 'Comida', icono: 'soup' },
-    { nombre: 'Otros', icono: 'shopping-basket' }
+    { nombre: 'Frutas', icono: 'apple' }, { nombre: 'Verduras', icono: 'sprout' },
+    { nombre: 'Carnes', icono: 'beef' }, { nombre: 'Abarrotes', icono: 'wheat' }
   ];
 
   protected preguntas = [
