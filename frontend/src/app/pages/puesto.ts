@@ -17,7 +17,7 @@ import { Icono } from '../shared/icono';
     <div class="contenedor pagina">
       @if (error()) {
         <div class="msg error" role="alert">{{ error() }}</div>
-        <a routerLink="/buscar" class="btn sec">Volver a buscar</a>
+        <a routerLink="/mercado" class="btn sec">Volver al mercado</a>
       } @else if (!d()) {
         <p class="cargando" role="status">Cargando puesto…</p>
       } @else {
@@ -62,7 +62,7 @@ import { Icono } from '../shared/icono';
           </div>
           <div class="fila envolver" style="margin-top:20px">
             <button type="button" class="btn" (click)="chatear()"><app-icono nombre="receipt" [tam]="18" /> Cotizar / Reservar</button>
-            <a class="btn sec" routerLink="/comparar"><app-icono nombre="scale" [tam]="18" /> Comparar producto</a>
+            <a class="btn sec" routerLink="/precios" fragment="comparar"><app-icono nombre="scale" [tam]="18" /> Comparar producto</a>
             @if (errorChat()) { <span class="msg error" role="alert">{{ errorChat() }}</span> }
           </div>
         } @else if (tab() === 'opiniones') {
