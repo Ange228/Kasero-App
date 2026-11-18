@@ -23,6 +23,11 @@ import { Logo } from './logo';
 
         <div class="acciones">
           @if (auth.logueado()) {
+            @if (auth.esComerciante()) {
+              <a routerLink="/mi-puesto" class="btn naranja" (click)="menu.set(false)"><app-icono nombre="store" [tam]="18" />Mi puesto</a>
+            } @else {
+              <a routerLink="/favoritos" class="btn fantasma" (click)="menu.set(false)"><app-icono nombre="heart" [tam]="18" />Favoritos</a>
+            }
             <a routerLink="/chats" class="btn fantasma" (click)="menu.set(false)"><app-icono nombre="message-circle" [tam]="18" />Mensajes</a>
             <a routerLink="/pedidos" class="btn sec" (click)="menu.set(false)"><app-icono nombre="user" [tam]="18" />{{ auth.primerNombre() }}</a>
             <button type="button" class="btn fantasma" (click)="salir()"><app-icono nombre="log-out" [tam]="18" />Salir</button>

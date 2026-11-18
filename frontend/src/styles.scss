@@ -126,5 +126,5 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 .pasos span { background: var(--verde-cl); padding: 5px 14px; border-radius: 999px; font-size: .85rem; }
 .pasos .on { background: var(--verde-osc); color: #fff; }
 /* Las estrellas llenas se rellenan con el color del texto (iconos Lucide solo traen contorno) */
-.estrella.llena svg { fill: currentColor; }
+.estrella.llena svg, .fav.on svg { fill: currentColor; }
 .solo-lectores { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }

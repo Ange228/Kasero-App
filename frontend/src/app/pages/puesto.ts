@@ -6,13 +6,14 @@ import { Canasta } from '../core/canasta.service';
 import { iconoProducto } from '../core/iconos';
 import { ComercianteDetalle, Resena } from '../core/models';
 import { Estrellas } from '../shared/estrellas';
+import { FavBoton } from '../shared/fav-boton';
 import { FechaPipe, SolesPipe } from '../shared/formatos';
 import { Icono } from '../shared/icono';
 
 /** Pantalla 3 · Perfil del comerciante con su catálogo de productos. */
 @Component({
   selector: 'app-puesto',
-  imports: [RouterLink, Icono, Estrellas, SolesPipe, FechaPipe],
+  imports: [RouterLink, Icono, Estrellas, FavBoton, SolesPipe, FechaPipe],
   template: `
     <div class="contenedor pagina">
       @if (error()) {
@@ -25,7 +26,7 @@ import { Icono } from '../shared/icono';
           <div class="fila">
             <div class="avatar grande" aria-hidden="true">{{ d()!.comerciante.iniciales }}</div>
             <div>
-              <h1>{{ d()!.comerciante.nombre }} <span class="etq"><app-icono nombre="badge-check" [tam]="14" /> Verificado</span></h1>
+              <h1>{{ d()!.comerciante.nombre }} <span class="etq"><app-icono nombre="badge-check" [tam]="14" /> Verificado</span> <app-fav-boton [comercianteId]="d()!.comerciante.id" [tam]="26" /></h1>
               <p class="suave dato"><app-icono nombre="star" [tam]="14" /> {{ d()!.comerciante.calificacion.toFixed(1) }} ({{ d()!.comerciante.numCalificaciones }} calificaciones)
                 · <app-icono nombre="map-pin" [tam]="14" /> Pasillo {{ d()!.comerciante.pasillo }} · Puesto {{ d()!.comerciante.nroPuesto }} · {{ d()!.comerciante.seccion }}</p>
             </div>

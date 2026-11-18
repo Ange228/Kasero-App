@@ -8,5 +8,5 @@ public final class AuthDtos {
 
     public record RegistroRequest(String nombre, String correo, String password) {}
 
-    public record LoginResponse(boolean exitoso, String mensaje, int usuarioId, String nombre, String token) {}
+    public record LoginResponse(boolean exitoso, String mensaje, int usuarioId, String nombre, String token, String rol) {}
 }

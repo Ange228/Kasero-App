@@ -44,4 +44,9 @@ export interface ResenaResultado { calificacion: number; numCalificaciones: numb
 export interface ChatResumen { id: number; comercianteId: number; contraparte: string; ultimoMensaje: string | null; fecha: string; }
 export interface Mensaje { id: number; autor: 'CLIENTE' | 'COMERCIANTE'; texto: string; fecha: string; mio: boolean; }
 
-export interface LoginResponse { exitoso: boolean; mensaje: string; usuarioId: number; nombre: string; token: string; }
+export interface PedidoPuesto {
+  id: number; cliente: string; modalidad: Modalidad; estado: string; total: number; fecha: string;
+  direccion: string | null; terceroNombre: string | null; codigoEntrega: string | null; items: ItemCotizacion[];
+}
+
+export interface LoginResponse { exitoso: boolean; mensaje: string; usuarioId: number; nombre: string; token: string; rol: string; }

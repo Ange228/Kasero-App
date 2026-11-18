@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import {
   ComercianteDetalle, Comerciante, ComparacionResponse, Cotizacion, ItemCanasta, Noticia, Pedido,
-  Producto, Promocion, ResumenPrecios, Sector, Modalidad, Resena, ResenaResultado, ChatResumen, Mensaje
+  Producto, Promocion, ResumenPrecios, Sector, Modalidad, Resena, ResenaResultado, ChatResumen, Mensaje, PedidoPuesto
 } from './models';
 
 /** Cliente de la API REST de Kasero (Spring Boot + Supabase). */
@@ -32,6 +32,16 @@ export class Api {
     return this.http.post<Pedido>('/api/pedidos', { cotizacionId, modalidad, direccion, terceroNombre });
   }
   pedidos() { return this.http.get<Pedido[]>('/api/pedidos'); }
+
+  favoritos() { return this.http.get<Comerciante[]>('/api/favoritos'); }
+  agregarFavorito(id: number) { return this.http.put(`/api/favoritos/${id}`, {}); }
+  quitarFavorito(id: number) { return this.http.delete(`/api/favoritos/${id}`); }
+
+  miPuesto() { return this.http.get<ComercianteDetalle>('/api/mi-puesto'); }
+  fijarPrecio(productoId: number, precio: number) { return this.http.put(`/api/mi-puesto/precios/${productoId}`, { precio }); }
+  quitarPrecio(productoId: number) { return this.http.delete(`/api/mi-puesto/precios/${productoId}`); }
+  pedidosPuesto() { return this.http.get<PedidoPuesto[]>('/api/mi-puesto/pedidos'); }
+  cambiarEstado(pedidoId: number, estado: string) { return this.http.put(`/api/mi-puesto/pedidos/${pedidoId}/estado`, { estado }); }
 
   chats() { return this.http.get<ChatResumen[]>('/api/chats'); }
   abrirChat(comercianteId: number) { return this.http.post<ChatResumen>('/api/chats', { comercianteId }); }

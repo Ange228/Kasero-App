@@ -126,3 +126,11 @@ CREATE TABLE IF NOT EXISTS noticias (
     titulo  VARCHAR(100) NOT NULL UNIQUE,
     detalle VARCHAR(200) NOT NULL
 );
+
+-- Comerciantes favoritos de cada cliente
+CREATE TABLE IF NOT EXISTS favoritos (
+    usuario_id     INT       NOT NULL REFERENCES usuarios(id)     ON DELETE CASCADE,
+    comerciante_id INT       NOT NULL REFERENCES comerciantes(id) ON DELETE CASCADE,
+    creado_en      TIMESTAMP NOT NULL DEFAULT NOW(),
+    PRIMARY KEY (usuario_id, comerciante_id)
+);

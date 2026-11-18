@@ -9,6 +9,14 @@ const requiereSesion: CanActivateFn = (_r, estado) => {
   return auth.logueado() || router.createUrlTree(['/acceso'], { queryParams: { volver: estado.url } });
 };
 
+/** El panel del comerciante solo abre con una cuenta de comerciante. */
+const soloComerciante: CanActivateFn = (_r, estado) => {
+  const auth = inject(Auth);
+  const router = inject(Router);
+  if (!auth.logueado()) return router.createUrlTree(['/acceso'], { queryParams: { volver: estado.url } });
+  return auth.esComerciante() || router.createUrlTree(['/']);
+};
+
 export const routes: Routes = [
   { path: '', title: 'Kasero · Compra a tus caseros desde casa', loadComponent: () => import('./pages/landing/landing').then(m => m.Landing) },
   { path: 'acceso', title: 'Ingresar · Kasero', loadComponent: () => import('./pages/acceso/acceso').then(m => m.Acceso) },
@@ -22,5 +30,7 @@ export const routes: Routes = [
   { path: 'pedidos', canActivate: [requiereSesion], title: 'Mis pedidos · Kasero', loadComponent: () => import('./pages/pedidos').then(m => m.Pedidos) },
   { path: 'chats', canActivate: [requiereSesion], title: 'Mensajes · Kasero', loadComponent: () => import('./pages/chats').then(m => m.Chats) },
   { path: 'chat/:id', canActivate: [requiereSesion], title: 'Conversación · Kasero', loadComponent: () => import('./pages/chat').then(m => m.Chat) },
+  { path: 'favoritos', canActivate: [requiereSesion], title: 'Favoritos · Kasero', loadComponent: () => import('./pages/favoritos').then(m => m.FavoritosPagina) },
+  { path: 'mi-puesto', canActivate: [soloComerciante], title: 'Mi puesto · Kasero', loadComponent: () => import('./pages/mi-puesto').then(m => m.MiPuesto) },
   { path: '**', redirectTo: '' }
 ];
