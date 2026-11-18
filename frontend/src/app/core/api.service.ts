@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import {
   ComercianteDetalle, Comerciante, ComparacionResponse, Cotizacion, ItemCanasta, Noticia, Pedido,
-  Producto, Promocion, ResumenPrecios, Sector, Modalidad, Resena, ResenaResultado, ChatResumen, Mensaje, PedidoPuesto
+  Producto, Promocion, ResumenPrecios, Sector, Modalidad, Resena, ResenaResultado, ChatResumen, Mensaje, PedidoPuesto, EvolucionPrecios
 } from './models';
 
 /** Cliente de la API REST de Kasero (Spring Boot + Supabase). */
@@ -15,6 +15,7 @@ export class Api {
   promociones() { return this.http.get<Promocion[]>('/api/promociones'); }
   noticias() { return this.http.get<Noticia[]>('/api/noticias'); }
   resumenPrecios() { return this.http.get<ResumenPrecios>('/api/precios/resumen'); }
+  evolucionPrecios() { return this.http.get<EvolucionPrecios>('/api/precios/evolucion'); }
 
   buscar(q: string, sector: string, orden: string) {
     const params = new HttpParams().set('q', q).set('sector', sector).set('orden', orden);

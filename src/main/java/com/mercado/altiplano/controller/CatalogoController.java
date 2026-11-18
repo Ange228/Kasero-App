@@ -2,7 +2,9 @@ package com.mercado.altiplano.controller;
 
 import com.mercado.altiplano.dto.CatalogoDtos.*;
 import com.mercado.altiplano.service.CatalogoService;
+import com.mercado.altiplano.dto.EvolucionDtos;
 import com.mercado.altiplano.service.ComparadorService;
+import com.mercado.altiplano.service.EvolucionService;
 import java.util.List;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,10 +13,12 @@ import org.springframework.web.bind.annotation.*;
 public class CatalogoController {
     private final CatalogoService catalogo;
     private final ComparadorService comparador;
+    private final EvolucionService evolucion;
 
-    public CatalogoController(CatalogoService catalogo, ComparadorService comparador) {
+    public CatalogoController(CatalogoService catalogo, ComparadorService comparador, EvolucionService evolucion) {
         this.catalogo = catalogo;
         this.comparador = comparador;
+        this.evolucion = evolucion;
     }
 
     @GetMapping("/sectores")
@@ -31,6 +35,9 @@ public class CatalogoController {
 
     @GetMapping("/precios/resumen")
     public ResumenPrecios resumen() { return catalogo.resumenPrecios(); }
+
+    @GetMapping("/precios/evolucion")
+    public EvolucionDtos.EvolucionPrecios evolucion() { return evolucion.evolucion(); }
 
     @GetMapping("/comerciantes")
     public List<Comerciante> buscar(@RequestParam(required = false) String q,

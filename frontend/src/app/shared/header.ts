@@ -26,9 +26,9 @@ import { Logo } from './logo';
             @if (auth.esComerciante()) {
               <a routerLink="/mi-puesto" class="btn naranja" (click)="menu.set(false)"><app-icono nombre="store" [tam]="18" />Mi puesto</a>
             } @else {
-              <a routerLink="/favoritos" class="btn fantasma" (click)="menu.set(false)"><app-icono nombre="heart" [tam]="18" />Favoritos</a>
+              <a routerLink="/favoritos" class="btn fantasma" title="Favoritos" (click)="menu.set(false)"><app-icono nombre="heart" [tam]="18" /><span class="txt">Favoritos</span></a>
             }
-            <a routerLink="/chats" class="btn fantasma" (click)="menu.set(false)"><app-icono nombre="message-circle" [tam]="18" />Mensajes</a>
+            <a routerLink="/chats" class="btn fantasma" title="Mensajes" (click)="menu.set(false)"><app-icono nombre="message-circle" [tam]="18" /><span class="txt">Mensajes</span></a>
             <a routerLink="/pedidos" class="btn sec" (click)="menu.set(false)"><app-icono nombre="user" [tam]="18" />{{ auth.primerNombre() }}</a>
             <button type="button" class="btn fantasma" (click)="salir()"><app-icono nombre="log-out" [tam]="18" />Salir</button>
           } @else {
@@ -50,11 +50,11 @@ export class Header {
   protected canasta = inject(Canasta);
   protected menu = signal(false);
   protected enlaces = [
-    { ruta: '/', texto: 'Inicio', icono: 'store', exacto: true },
     { ruta: '/mercado', texto: 'Mercado', icono: 'shopping-basket', exacto: true },
     { ruta: '/buscar', texto: 'Buscar', icono: 'search', exacto: false },
     { ruta: '/comparar', texto: 'Comparar', icono: 'scale', exacto: false },
-    { ruta: '/precios', texto: 'Precios', icono: 'tag', exacto: false }
+    { ruta: '/precios', texto: 'Precios', icono: 'tag', exacto: false },
+    { ruta: '/mapa', texto: 'Mapa', icono: 'map-pin', exacto: false }
   ];
 
   protected salir() { this.menu.set(false); this.auth.salir(); }
