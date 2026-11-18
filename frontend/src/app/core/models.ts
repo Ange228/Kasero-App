@@ -41,4 +41,7 @@ export interface ResumenPrecios { promedios: PrecioPromedio[]; masCotizados: Pro
 export interface Resena { id: number; usuario: string; puntaje: number; comentario: string | null; fecha: string; }
 export interface ResenaResultado { calificacion: number; numCalificaciones: number; resena: Resena; }
 
+export interface ChatResumen { id: number; comercianteId: number; contraparte: string; ultimoMensaje: string | null; fecha: string; }
+export interface Mensaje { id: number; autor: 'CLIENTE' | 'COMERCIANTE'; texto: string; fecha: string; mio: boolean; }
+
 export interface LoginResponse { exitoso: boolean; mensaje: string; usuarioId: number; nombre: string; token: string; }

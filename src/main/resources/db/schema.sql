@@ -35,6 +35,27 @@ CREATE TABLE IF NOT EXISTS comerciantes (
 -- La calificacion se recalcula como promedio con 2 decimales al llegar reseñas
 ALTER TABLE comerciantes ALTER COLUMN calificacion TYPE NUMERIC(3,2);
 
+-- Cuenta de comerciante: un usuario puede estar vinculado a un puesto (responde chats)
+ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS comerciante_id INT REFERENCES comerciantes(id);
+
+-- Chat entre un cliente y un comerciante (una conversacion por pareja)
+CREATE TABLE IF NOT EXISTS chats (
+    id             SERIAL PRIMARY KEY,
+    usuario_id     INT       NOT NULL REFERENCES usuarios(id)     ON DELETE CASCADE,
+    comerciante_id INT       NOT NULL REFERENCES comerciantes(id) ON DELETE CASCADE,
+    creado_en      TIMESTAMP NOT NULL DEFAULT NOW(),
+    UNIQUE (usuario_id, comerciante_id)
+);
+
+CREATE TABLE IF NOT EXISTS mensajes (
+    id         SERIAL PRIMARY KEY,
+    chat_id    INT          NOT NULL REFERENCES chats(id) ON DELETE CASCADE,
+    autor      VARCHAR(12)  NOT NULL CHECK (autor IN ('CLIENTE','COMERCIANTE')),
+    texto      VARCHAR(500) NOT NULL,
+    enviado_en TIMESTAMP    NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_mensajes_chat ON mensajes (chat_id, id);
+
 -- Una reseña por cliente y comerciante (solo clientes con pedido en ese puesto)
 CREATE TABLE IF NOT EXISTS resenas (
     id             SERIAL PRIMARY KEY,

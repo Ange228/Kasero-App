@@ -20,5 +20,7 @@ export const routes: Routes = [
   { path: 'pedido/:id', canActivate: [requiereSesion], title: 'Confirmar pedido · Kasero', loadComponent: () => import('./pages/pedido').then(m => m.Pedido) },
   { path: 'precios', title: 'Precios · Kasero', loadComponent: () => import('./pages/precios').then(m => m.Precios) },
   { path: 'pedidos', canActivate: [requiereSesion], title: 'Mis pedidos · Kasero', loadComponent: () => import('./pages/pedidos').then(m => m.Pedidos) },
+  { path: 'chats', canActivate: [requiereSesion], title: 'Mensajes · Kasero', loadComponent: () => import('./pages/chats').then(m => m.Chats) },
+  { path: 'chat/:id', canActivate: [requiereSesion], title: 'Conversación · Kasero', loadComponent: () => import('./pages/chat').then(m => m.Chat) },
   { path: '**', redirectTo: '' }
 ];
