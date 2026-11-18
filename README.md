@@ -373,6 +373,16 @@ Ejecutar desde la raíz de `Kasero_project`:
 mvn clean package
 ```
 
+### Pruebas unitarias
+
+```powershell
+mvn test
+```
+
+53 pruebas JUnit 5 + Mockito sobre las reglas de negocio (no necesitan base de datos): hash de contraseñas,
+sesiones, autenticación, búsqueda y orden, comparador de canasta, cotizaciones sin duplicados y pedidos con
+sus tres modalidades de entrega.
+
 ### Ejecución
 
 ```powershell
