@@ -21,6 +21,7 @@ export class Auth {
   readonly sesion = signal<Sesion | null>(this.leer());
   readonly logueado = computed(() => this.sesion() !== null);
   readonly esComerciante = computed(() => this.sesion()?.rol === 'COMERCIANTE');
+  readonly esAdmin = computed(() => this.sesion()?.rol === 'ADMIN');
   readonly primerNombre = computed(() => this.sesion()?.nombre.split(' ')[0] ?? '');
 
   login(correo: string, password: string) {
