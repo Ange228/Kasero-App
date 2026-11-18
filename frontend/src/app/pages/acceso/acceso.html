@@ -1,0 +1,50 @@
+<div class="acceso">
+  <aside class="lado">
+    <app-logo [tam]="48" />
+    <h2>Tu mercado de siempre, ahora desde casa.</h2>
+    <ul>
+      @for (b of beneficios; track b.texto) {
+        <li><span class="ic"><app-icono [nombre]="b.icono" [tam]="20" /></span>{{ b.texto }}</li>
+      }
+    </ul>
+    <p class="pie-lado">Mercado del Altiplano · Arequipa</p>
+  </aside>
+
+  <section class="formulario">
+    <div class="caja">
+      <h1>{{ modo() === 'login' ? 'Bienvenido de vuelta' : 'Crea tu cuenta' }}</h1>
+      <p class="suave sub">{{ modo() === 'login' ? 'Ingresa para ver tus cotizaciones y pedidos.' : 'Es gratis y toma menos de un minuto.' }}</p>
+
+      <div class="tabs" role="tablist">
+        <button type="button" role="tab" [class.on]="modo() === 'login'" (click)="cambiar('login')">Ingresar</button>
+        <button type="button" role="tab" [class.on]="modo() === 'registro'" (click)="cambiar('registro')">Registrarse</button>
+      </div>
+
+      <form (ngSubmit)="enviar()" #f="ngForm">
+        @if (modo() === 'registro') {
+          <label for="nombre">Nombre</label>
+          <input id="nombre" name="nombre" [(ngModel)]="nombre" autocomplete="name" required>
+        }
+        <label for="correo">Correo</label>
+        <input id="correo" name="correo" type="email" [(ngModel)]="correo" autocomplete="email" required>
+        <label for="password">Contraseña @if (modo() === 'registro') { <span class="suave">(mínimo 8 caracteres)</span> }</label>
+        <input id="password" name="password" type="password" [(ngModel)]="password" required
+               [attr.autocomplete]="modo() === 'login' ? 'current-password' : 'new-password'">
+
+        <div aria-live="polite">
+          @if (error()) { <div class="msg error" role="alert">{{ error() }}</div> }
+        </div>
+
+        <button class="btn grande block" [disabled]="enviando() || !f.valid">
+          {{ enviando() ? 'Un momento…' : (modo() === 'login' ? 'Ingresar' : 'Crear cuenta') }}
+          <app-icono nombre="arrow-right" [tam]="20" />
+        </button>
+      </form>
+
+      @if (modo() === 'login') {
+        <p class="demo"><app-icono nombre="info" [tam]="16" /> Cuenta de prueba: <strong>demo&#64;kasero.local</strong> / <strong>123456</strong></p>
+      }
+      <p class="volver"><a routerLink="/">← Volver al inicio</a></p>
+    </div>
+  </section>
+</div>

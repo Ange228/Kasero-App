@@ -164,9 +164,10 @@ Kasero_project/
 | **Java**                 | 21      | Lenguaje de desarrollo                 |
 | **Spring Boot**          | 4.1.1   | Backend y API REST                     |
 | **Maven**                | 3.10.0  | Gestión de dependencias y construcción |
-| **HTML5**                | -       | Estructura de la interfaz              |
-| **CSS3**                 | -       | Diseño visual                          |
-| **JavaScript**           | -       | Comunicación con la API                |
+| **Angular**              | 22      | Interfaz web (carpeta `frontend/`)     |
+| **TypeScript / SCSS**    | -       | Componentes y estilos de Angular       |
+| **Lucide**               | -       | Iconos vectoriales (`@lucide/angular`) |
+| **DM Sans + Inter**      | -       | Tipografías (autohospedadas)           |
 | **Supabase (PostgreSQL)**| -       | Base de datos (ver `docs/SUPABASE.md`) |
 | **PlantUML**             | -       | Modelado de arquitectura y clases      |
 | **Markdown**             | -       | Documentación y ADR                    |
@@ -349,6 +350,20 @@ mvn -version
 Antes de ejecutar, configura las variables `SUPABASE_DB_URL`, `SUPABASE_DB_USER` y
 `SUPABASE_DB_PASSWORD` siguiendo [`docs/SUPABASE.md`](docs/SUPABASE.md). Al iniciar, la app crea las
 tablas y carga los datos de las 10 caseras entrevistadas (`src/main/resources/db/`).
+
+### Frontend (Angular)
+
+La interfaz vive en `frontend/` y compila directamente a `src/main/resources/static/`, de donde la sirve
+Spring Boot. Requiere Node.js 22 o superior.
+
+```powershell
+cd frontend
+npm install
+npm run build
+```
+
+Atajo: `ejecutar.bat` compila el frontend y levanta el backend. Para desarrollar con recarga en vivo,
+deja Spring Boot corriendo y ejecuta `npm start` en `frontend/` (abre http://localhost:4200, con proxy a `/api`).
 
 ### Construcción del proyecto
 
