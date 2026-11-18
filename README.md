@@ -25,530 +25,276 @@ Aplicar conceptos, estándares y buenas prácticas de calidad de software durant
 
 # Kasero - Mercado del Altiplano
 
-Sistema web orientado a la digitalización y gestión de los puestos del **Mercado del Altiplano**, desarrollado como proyecto académico para la evaluación de arquitectura y calidad de software.
+Canal digital para promover la inserción de los mercados de abastos en plataformas digitales: los clientes encuentran a sus caseros, cotizan y comparan su canasta, piden con la modalidad de entrega que prefieran y se comunican con ellos, mientras los comerciantes ganan visibilidad y un canal de venta a distancia.
 
 ![Java](https://img.shields.io/badge/JAVA-21-ED8B00?style=for-the-badge\&logo=openjdk\&logoColor=white)
 ![Spring Boot](https://img.shields.io/badge/SPRING_BOOT-4.1.1-6DB33F?style=for-the-badge\&logo=springboot\&logoColor=white)
+![Angular](https://img.shields.io/badge/ANGULAR-22-DD0031?style=for-the-badge\&logo=angular\&logoColor=white)
+![Supabase](https://img.shields.io/badge/SUPABASE-PostgreSQL-3ECF8E?style=for-the-badge\&logo=supabase\&logoColor=white)
 ![Maven](https://img.shields.io/badge/MAVEN-3.10.0-C71A36?style=for-the-badge\&logo=apachemaven\&logoColor=white)
-![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge\&logo=html5\&logoColor=white)
-![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge\&logo=css3\&logoColor=white)
-![JavaScript](https://img.shields.io/badge/JAVASCRIPT-F7DF1E?style=for-the-badge\&logo=javascript\&logoColor=black)
-![PlantUML](https://img.shields.io/badge/PLANTUML-FFFFFF?style=for-the-badge\&logo=uml\&logoColor=black)
-![Status](https://img.shields.io/badge/STATUS-En%20desarrollo-F2C94C?style=for-the-badge)
+![Status](https://img.shields.io/badge/STATUS-v0.4.0-F2C94C?style=for-the-badge)
 
 ---
 
-## 1. Descripcion del Sistema
+## 1. Funcionalidades
 
-**Kasero** es una aplicación web orientada a facilitar la interacción entre clientes y puestos del Mercado del Altiplano, proporcionando una base para la consulta de información, comunicación y futura gestión de pedidos y reservas.
+| Actor | Qué puede hacer |
+| :---- | :-------------- |
+| **Visitante** | Ver la página de presentación, explorar el mercado, buscar y filtrar puestos, ver perfiles y opiniones, comparar una canasta, consultar precios y su evolución semanal, y ver el mapa por pasillos |
+| **Cliente** | Todo lo anterior, más: cotizar, pedir (envío, recojo en puesto o tercero autorizado con código), seguir sus pedidos, calificar comerciantes, guardar favoritos y chatear con el casero |
+| **Comerciante** | Panel *Mi puesto*: actualizar los precios de su catálogo, ver los pedidos recibidos y avanzar su estado (en preparación, listo, entregado); responder los chats de su puesto |
+| **Administrador** | Panel *Administración*: crear y editar puestos y productos, activar o desactivar puestos, publicar noticias y promociones, y vincular cuentas de comerciante |
 
-La implementación actual se encuentra enfocada en el **módulo de autenticación**, utilizado como base para el análisis, diagnóstico y mejora de la arquitectura de software.
-
-Actualmente el sistema incluye:
-
-* **Autenticación de usuarios:** inicio de sesión mediante correo y contraseña.
-* **Interfaz web:** formulario de login desarrollado con HTML, CSS y JavaScript.
-* **API REST:** endpoint de autenticación implementado mediante Spring Boot.
-* **Separación por capas:** presentación, aplicación/negocio, acceso a datos y dominio.
-* **Abstracción de persistencia:** uso de `UsuarioRepositoryPort`.
-* **Manejo centralizado de errores:** `AuthenticationException` y `GlobalExceptionHandler`.
-* **Modelo inicial de dominio:** `Usuario`, `Chat` y `Mensaje`.
-* **Documentación arquitectónica:** diagramas PlantUML y ADR.
+Requisitos del Hito 1 cubiertos: R-01 cotizar, R-02 comparar, R-03 pedido y modalidades de entrega, R-04 buscar y filtrar, R-05 perfil del comerciante, R-06 precios referenciales y variación semanal, R-07 autenticación y R-08 inicio por sectores; además de chat (RF-11), reseñas y favoritos.
 
 ---
 
 ## 2. Arquitectura del Proyecto
 
-El proyecto utiliza una arquitectura organizada en capas, con separación entre la presentación, lógica de aplicación, acceso a datos y modelo de dominio.
+Arquitectura en capas. El frontend Angular consume la API REST de Spring Boot, que accede a Supabase (PostgreSQL) a través de repositorios JDBC.
 
 ```text
 ┌─────────────────────────────────────────────┐
 │           CAPA DE PRESENTACION              │
 │                                             │
-│ HTML / CSS / JavaScript                     │
-│ AuthController                              │
+│ Angular 22 (frontend/)                      │
+│ Controladores REST (controller/)            │
 └──────────────────────┬──────────────────────┘
                        │
                        ▼
 ┌─────────────────────────────────────────────┐
 │       CAPA DE APLICACION / NEGOCIO          │
 │                                             │
-│ AuthService                                 │
-│ AuthenticationException                     │
+│ Servicios (service/): Auth, Catalogo,       │
+│ Comparador, Cotizacion, Pedido, Resena,     │
+│ Chat, Puesto, Favorito, Evolucion, Admin    │
+│ Seguridad (security/) · Excepciones         │
 └──────────────────────┬──────────────────────┘
                        │
                        ▼
 ┌─────────────────────────────────────────────┐
 │           CAPA DE ACCESO A DATOS            │
 │                                             │
-│ UsuarioRepositoryPort                       │
-│ UsuarioRepository                           │
+│ Repositorios JDBC (repository/)             │
+│ UsuarioRepositoryPort (puerto, ADR-001)     │
 └──────────────────────┬──────────────────────┘
                        │
                        ▼
 ┌─────────────────────────────────────────────┐
 │             CAPA DE DOMINIO                 │
 │                                             │
-│ Usuario / Chat / Mensaje                    │
+│ Modelo (model/) · DTOs (dto/)               │
 └─────────────────────────────────────────────┘
 ```
 
-La arquitectura también incorpora componentes de soporte para el manejo de errores y objetos de transferencia:
-
-```text
-LoginRequest
-LoginResponse
-GlobalExceptionHandler
-```
+Los servicios no conocen a Supabase: el acceso a datos se esconde detrás de los repositorios, y el de usuarios además detrás de un puerto (`UsuarioRepositoryPort`), lo que permite probar la autenticación con un repositorio en memoria.
 
 ---
 
 ## 3. Estructura de Directorios
 
-La organización física actual del proyecto es la siguiente:
-
 ```text
-Kasero_project/
+Kasero-App/
+├── .github/workflows/ci.yml       Integración continua (GitHub Actions)
 ├── docs/
-│   └── adr/
-│       └── ADR-001-abstraccion-repositorio.md
-│
+│   ├── adr/ADR-001-abstraccion-repositorio.md
+│   ├── SUPABASE.md                Cómo configurar la base de datos
+│   └── DESPLIEGUE.md              Docker y Azure App Service
+├── frontend/                      Interfaz Angular 22
+│   └── src/app/
+│       ├── core/                  API, sesión, canasta, favoritos, modelos
+│       ├── shared/                Header, footer, iconos, estrellas, gráfico
+│       └── pages/                 Landing, acceso, mercado, buscar, puesto, ...
 ├── src/
-│   └── main/
-│       ├── java/
-│       │   └── com/
-│       │       └── mercado/
-│       │           └── altiplano/
-│       │               ├── MercadoApplication.java
-│       │               │
-│       │               ├── controller/
-│       │               │   └── AuthController.java
-│       │               │
-│       │               ├── dto/
-│       │               │   ├── LoginRequest.java
-│       │               │   └── LoginResponse.java
-│       │               │
-│       │               ├── exception/
-│       │               │   ├── AuthenticationException.java
-│       │               │   └── GlobalExceptionHandler.java
-│       │               │
-│       │               ├── model/
-│       │               │   ├── Usuario.java
-│       │               │   ├── Chat.java
-│       │               │   └── Mensaje.java
-│       │               │
-│       │               ├── repository/
-│       │               │   ├── UsuarioRepository.java
-│       │               │   └── UsuarioRepositoryPort.java
-│       │               │
-│       │               └── service/
-│       │                   └── AuthService.java
-│       │
-│       └── resources/
-│           └── static/
-│               ├── index.html
-│               ├── styles.css
-│               └── app.js
-│
-├── .gitignore
-├── pom.xml
+│   ├── main/java/com/mercado/altiplano/
+│   │   ├── controller/  dto/  exception/  model/
+│   │   ├── repository/  security/  service/
+│   │   └── MercadoApplication.java
+│   ├── main/resources/
+│   │   ├── db/schema.sql  db/data.sql     Esquema y datos iniciales (Supabase)
+│   │   ├── application.properties
+│   │   └── static/                Frontend compilado (no se versiona)
+│   └── test/java/                 Pruebas unitarias e integración
+├── Dockerfile · ejecutar.bat · pom.xml
 └── README.md
 ```
 
 ---
 
-## 4. Tecnologias y Herramientas
+## 4. Tecnologías y Herramientas
 
-| Tecnología / Herramienta | Versión | Uso                                    |
-| :----------------------- | :------ | :------------------------------------- |
-| **Java**                 | 21      | Lenguaje de desarrollo                 |
-| **Spring Boot**          | 4.1.1   | Backend y API REST                     |
-| **Maven**                | 3.10.0  | Gestión de dependencias y construcción |
-| **Angular**              | 22      | Interfaz web (carpeta `frontend/`)     |
-| **TypeScript / SCSS**    | -       | Componentes y estilos de Angular       |
-| **Lucide**               | -       | Iconos vectoriales (`@lucide/angular`) |
-| **DM Sans + Inter**      | -       | Tipografías (autohospedadas)           |
-| **Supabase (PostgreSQL)**| -       | Base de datos (ver `docs/SUPABASE.md`) |
-| **PlantUML**             | -       | Modelado de arquitectura y clases      |
-| **Markdown**             | -       | Documentación y ADR                    |
-
----
-
-## 5. Modulo de Autenticacion
-
-El módulo de autenticación implementa actualmente el flujo de inicio de sesión.
-
-### Flujo de autenticación
-
-```text
-Usuario
-   │
-   ▼
-Frontend HTML/CSS/JavaScript
-   │
-   │ POST /api/auth/login
-   ▼
-AuthController
-   │
-   ▼
-AuthService
-   │
-   ▼
-UsuarioRepositoryPort
-   │
-   ▼
-UsuarioRepository
-```
-
-### Flujo de manejo de errores
-
-```text
-AuthService
-    │
-    ▼
-AuthenticationException
-    │
-    ▼
-GlobalExceptionHandler
-    │
-    ▼
-Respuesta HTTP
-```
-
-### Endpoint
-
-```http
-POST /api/auth/login
-```
-
-### Cuerpo de la solicitud
-
-```json
-{
-  "correo": "demo@kasero.local",
-  "password": "123456"
-}
-```
-
-### Respuesta exitosa
-
-```json
-{
-  "exitoso": true,
-  "mensaje": "Inicio de sesión exitoso",
-  "usuarioId": 1,
-  "nombre": "Usuario Demo"
-}
-```
+| Tecnología / Herramienta | Versión | Uso                                          |
+| :----------------------- | :------ | :------------------------------------------- |
+| **Java**                 | 21      | Lenguaje del backend                         |
+| **Spring Boot**          | 4.1.1   | API REST                                     |
+| **Supabase (PostgreSQL)**| -       | Base de datos (ver `docs/SUPABASE.md`)       |
+| **Angular**              | 22      | Interfaz web (componentes, rutas, servicios) |
+| **TypeScript / SCSS**    | -       | Código y estilos del frontend                |
+| **Lucide**               | -       | Iconos vectoriales (`@lucide/angular`)       |
+| **DM Sans + Inter**      | -       | Tipografías autohospedadas                   |
+| **Maven**                | 3.10.0  | Construcción y dependencias del backend      |
+| **JUnit 5 + Mockito**    | -       | Pruebas unitarias                            |
+| **PostgreSQL embebido**  | 14      | Pruebas de integración sin Supabase          |
+| **GitHub Actions**       | -       | Integración continua                         |
 
 ---
 
-## 6. Interfaz Web
-
-La aplicación dispone de una interfaz web inicial para el módulo de autenticación.
-
-La interfaz se encuentra implementada mediante:
-
-```text
-src/main/resources/static/
-├── index.html
-├── styles.css
-└── app.js
-```
-
-El frontend es servido directamente por Spring Boot y se encuentra disponible en:
-
-```text
-http://localhost:8080
-```
-
-El formulario de login consume el endpoint:
-
-```text
-POST /api/auth/login
-```
-
-permitiendo validar las credenciales y mostrar mensajes de éxito o error.
-
----
-
-## 7. Decisiones Arquitectonicas
-
-Como parte de la mejora del diseño se introdujo una abstracción para desacoplar la lógica de autenticación de la implementación concreta de persistencia.
-
-### Antes
-
-```text
-AuthService
-     │
-     ▼
-UsuarioRepository
-```
-
-### Después
-
-```text
-AuthService
-     │
-     ▼
-UsuarioRepositoryPort
-     ▲
-     │
-UsuarioRepository
-```
-
-También se separó el tratamiento de errores HTTP del controlador mediante:
-
-```text
-AuthenticationException
-        │
-        ▼
-GlobalExceptionHandler
-```
-
-Estas decisiones buscan mejorar principalmente:
-
-* Bajo acoplamiento.
-* Modificabilidad.
-* Separación de responsabilidades.
-* Reutilización.
-* Comprobabilidad.
-
-La decisión principal se encuentra documentada en:
-
-```text
-docs/adr/ADR-001-abstraccion-repositorio.md
-```
-
----
-
-## 8. Ejecucion del Proyecto
+## 5. Ejecución
 
 ### Requisitos
 
-Se requiere disponer de:
-
-```text
-Java 21
-Maven 3.10.0
-```
-
-Comprobar Java:
-
-```powershell
-java -version
-```
-
-Comprobar Maven:
-
-```powershell
-mvn -version
-```
+Java 21, Maven 3.10, Node.js 22 o superior y un proyecto de Supabase.
 
 ### Base de datos (Supabase)
 
-Antes de ejecutar, configura las variables `SUPABASE_DB_URL`, `SUPABASE_DB_USER` y
-`SUPABASE_DB_PASSWORD` siguiendo [`docs/SUPABASE.md`](docs/SUPABASE.md). Al iniciar, la app crea las
-tablas y carga los datos de las 10 caseras entrevistadas (`src/main/resources/db/`).
+Define `SUPABASE_DB_URL`, `SUPABASE_DB_USER` y `SUPABASE_DB_PASSWORD` siguiendo [`docs/SUPABASE.md`](docs/SUPABASE.md).
+Al iniciar, la app crea las tablas y carga los datos de las 10 caseras entrevistadas (`src/main/resources/db/`).
+Las credenciales nunca van en el código.
 
-### Frontend (Angular)
+### Iniciar la aplicación
 
-La interfaz vive en `frontend/` y compila directamente a `src/main/resources/static/`, de donde la sirve
-Spring Boot. Requiere Node.js 22 o superior.
+En la misma ventana donde definiste las variables:
+
+```powershell
+ejecutar.bat
+```
+
+Compila el frontend (`frontend/` → `src/main/resources/static/`) y levanta Spring Boot en http://localhost:8080.
+Para hacerlo a mano:
 
 ```powershell
 cd frontend
 npm install
 npm run build
+cd ..
+mvn spring-boot:run
 ```
 
-Atajo: `ejecutar.bat` compila el frontend y levanta el backend. Para desarrollar con recarga en vivo,
-deja Spring Boot corriendo y ejecuta `npm start` en `frontend/` (abre http://localhost:4200, con proxy a `/api`).
+Para desarrollar con recarga en vivo, deja Spring Boot corriendo y ejecuta `npm start` en `frontend/`
+(http://localhost:4200, con proxy a `/api`).
 
-### Construcción del proyecto
+### Modo demo sin Supabase
 
-Ejecutar desde la raíz de `Kasero_project`:
+Levanta la aplicación completa sobre un PostgreSQL embebido (los datos duran mientras el proceso corre):
 
 ```powershell
-mvn clean package
+mvn spring-boot:test-run -Dspring-boot.run.main-class=com.mercado.altiplano.ServidorDemo
 ```
 
-### Pruebas unitarias
+Abre http://localhost:8081 (requiere haber compilado antes el frontend).
+
+### Pruebas
 
 ```powershell
 mvn test
 ```
 
-110 pruebas JUnit 5 + Mockito sobre las reglas de negocio (no necesitan base de datos): hash de contraseñas,
-sesiones, autenticación, búsqueda y orden, comparador de canasta, cotizaciones sin duplicados, pedidos con
-sus tres modalidades de entrega, calificaciones de comerciantes y chat.
+127 pruebas, todas en verde:
+
+* **Unitarias (JUnit 5 + Mockito):** hash de contraseñas, sesiones, autenticación, búsqueda y orden, comparador,
+  cotizaciones sin duplicados, pedidos, calificaciones, chat, panel del comerciante, favoritos, evolución de precios y administración.
+* **Integración con PostgreSQL real embebido:** aplica `schema.sql` y `data.sql` (varias veces, son idempotentes) y recorre
+  el flujo completo con los repositorios JDBC (13 pruebas).
+* **Arranque de la aplicación y API por HTTP:** JSON, códigos de estado y control de acceso por rol (4 pruebas).
 
 ### Integración continua y despliegue
 
-`.github/workflows/ci.yml` ejecuta en GitHub Actions las pruebas, la compilación de Angular y el empaquetado
-del JAR en cada push. Hay un `Dockerfile` listo. Ver [`docs/DESPLIEGUE.md`](docs/DESPLIEGUE.md).
-
-### Ejecución
-
-```powershell
-mvn spring-boot:run
-```
-
-Al iniciar correctamente, Spring Boot levanta el servidor en:
-
-```text
-http://localhost:8080
-```
-
-### Detener la aplicación
-
-En la terminal donde se encuentra ejecutándose:
-
-```text
-Ctrl + C
-```
+`.github/workflows/ci.yml` ejecuta en GitHub Actions las pruebas, la compilación de Angular y el empaquetado del JAR en cada push.
+Hay un `Dockerfile` listo. Ver [`docs/DESPLIEGUE.md`](docs/DESPLIEGUE.md).
 
 ---
 
-## 9. Credenciales de Prueba
+## 6. Cuentas de Prueba
 
-La app crea este usuario de prueba al iniciar (contraseña guardada con PBKDF2). También puedes registrarte desde la pantalla de acceso.
+Se crean al iniciar (contraseña guardada con PBKDF2). Son solo para desarrollo: cámbialas o elimínalas en producción.
 
-Hay una segunda cuenta, de **comerciante**, vinculada al puesto de Nilda. Con ella aparece el botón
-*Mi puesto* (panel para cambiar precios y avanzar el estado de los pedidos) y sirve para probar el **chat**:
+| Rol | Correo | Contraseña | Para qué sirve |
+| :-- | :----- | :--------- | :------------- |
+| Cliente | `demo@kasero.local` | `123456` | Cotizar, pedir, calificar, favoritos y chat |
+| Comerciante (puesto de Nilda) | `nilda@kasero.local` | `123456` | Botón *Mi puesto* y responder chats |
+| Administrador | `admin@kasero.local` | `123456` | Botón *Administración* |
 
-```text
-Comerciante: nilda@kasero.local  /  123456
-```
-
-Y una tercera, de **administrador** (`admin@kasero.local` / `123456`), que abre *Administración* para
-gestionar puestos, productos, noticias y promociones, y vincular cuentas de comerciante a un puesto.
-
-Escribe como `demo@kasero.local` desde el perfil de Nilda (botón *Chatear*) y responde entrando como
-`nilda@kasero.local` en la sección *Mensajes* (en otra ventana o de incógnito).
-
-```text
-Correo:
-demo@kasero.local
-
-Contraseña:
-123456
-```
-
-> Estas credenciales corresponden únicamente al usuario de prueba utilizado durante el desarrollo. La persistencia definitiva y el almacenamiento seguro de contraseñas quedan pendientes para una versión posterior.
+También puedes registrarte desde la pantalla de acceso (contraseña de 8 o más caracteres).
+Para probar el chat, escribe como `demo` desde el perfil de Nilda (*Chatear*) y responde como `nilda` en *Mensajes* desde otra ventana.
 
 ---
 
-## 10. Evaluacion de Calidad y Arquitectura
+## 7. API REST
 
-El proyecto forma parte de una actividad de evaluación arquitectónica que contempla:
+| Grupo | Endpoints |
+| :---- | :-------- |
+| Autenticación | `POST /api/auth/login` · `/registro` · `/logout` · `GET /api/auth/me` |
+| Catálogo (público) | `GET /api/sectores` · `/productos` · `/promociones` · `/noticias` · `/comerciantes` (`q`, `sector`, `orden`) · `/comerciantes/{id}` |
+| Precios (público) | `GET /api/precios/resumen` · `/precios/evolucion` · `POST /api/comparaciones` |
+| Opiniones | `GET` y `POST /api/comerciantes/{id}/resenas` |
+| Cliente (sesión) | `POST` y `GET /api/cotizaciones` · `/pedidos` · `GET /api/chats` · `POST /api/chats` · `GET` y `POST /api/chats/{id}/mensajes` · `GET`, `PUT` y `DELETE /api/favoritos/{id}` |
+| Comerciante (sesión) | `GET /api/mi-puesto` · `PUT` y `DELETE /api/mi-puesto/precios/{productoId}` · `GET /api/mi-puesto/pedidos` · `PUT /api/mi-puesto/pedidos/{id}/estado` |
+| Administración | `/api/admin/puestos` · `/productos` · `/noticias` · `/promociones` (CRUD) · `POST /api/admin/puestos/{id}/cuenta` |
 
-### Diagnostico
-
-* Modelado del diseño actual.
-* Lista de revisión aplicada a ocho clases.
-* Cálculo de métricas de diseño.
-* Identificación de problemas arquitectónicos.
-
-### Mejora
-
-* Priorización de cinco hallazgos.
-* Refactorización de dos problemas.
-* Comparación del diseño antes y después.
-* Evaluación mediante un escenario de cambio.
-
-### Documentacion
-
-* ADR de la decisión arquitectónica principal.
-* Registro de evidencias.
-* Registro de limitaciones.
-* Diagramas PlantUML.
+Las rutas con sesión usan `Authorization: Bearer <token>` (sesión de 8 horas). Los errores devuelven `{"exitoso": false, "mensaje": "..."}`.
 
 ---
 
-## 11. Modelo de Clases Evaluado
+## 8. Modelo de Datos
 
-Las ocho clases seleccionadas para el diagnóstico inicial fueron:
+Tablas en Supabase: `usuarios`, `sectores`, `comerciantes`, `productos`, `precios`, `precios_historial`, `cotizaciones`,
+`cotizacion_items`, `pedidos`, `promociones`, `noticias`, `resenas`, `chats`, `mensajes` y `favoritos`.
 
-```text
-1. AuthController
-2. AuthService
-3. UsuarioRepository
-4. Usuario
-5. LoginRequest
-6. LoginResponse
-7. Chat
-8. Mensaje
-```
-
-El diseño inicial corresponde a la versión **v0.1**.
-
-La versión refactorizada corresponde a **v0.2** e incorpora:
-
-```text
-UsuarioRepositoryPort
-AuthenticationException
-GlobalExceptionHandler
-```
+Los datos de los comerciantes provienen de la entrevista a los caseros (`Entrevista FA.xlsx`). Para el catálogo se aplicaron estas reglas:
+el número de puesto es un valor aleatorio entre 1 y 35, y las secciones no comestibles (tecnología, ropa) se reemplazaron por rubros de comida.
+Los precios, las promociones y el historial de semanas anteriores son **datos de ejemplo**.
 
 ---
 
-## 12. Alcance Actual
+## 9. Decisiones Arquitectonicas
+
+Se desacopló la lógica de autenticación de la persistencia concreta mediante `UsuarioRepositoryPort`, y el tratamiento de errores HTTP
+se centralizó en `GlobalExceptionHandler`. Mejoran el bajo acoplamiento, la modificabilidad, la reutilización y la comprobabilidad.
+Detalle en [`docs/adr/ADR-001-abstraccion-repositorio.md`](docs/adr/ADR-001-abstraccion-repositorio.md).
+
+---
+
+## 10. Calidad (ISO/IEC 25010)
+
+| Característica | Cómo se aplica |
+| :------------- | :------------- |
+| Adecuación funcional | Reglas de negocio con pruebas por requisito (cotizar, comparar, pedir, buscar, perfil, autenticación) |
+| Fiabilidad | Cotizaciones sin duplicados (clave de solicitud), historial con fechas y estados, scripts SQL idempotentes |
+| Seguridad | Contraseñas con PBKDF2 (600 000 iteraciones), sesión de 8 horas, mensajes de error que no revelan qué dato falló, control de acceso por rol, nombres abreviados en datos públicos |
+| Mantenibilidad | Capas, puertos de repositorio, clases pequeñas, convenciones y documentación |
+| Usabilidad y accesibilidad | Estados de carga, vacío y error, etiquetas en formularios, foco visible, enlace para saltar al contenido, modo oscuro |
+| Portabilidad | Diseño adaptable a teléfono, tablet y computadora |
+
+---
+
+## 11. Alcance Actual
 
 ### Implementado
 
-* [x] Estructura inicial de Spring Boot.
-* [x] Arquitectura por capas.
-* [x] Inicio de sesión.
-* [x] Interfaz web de autenticación.
-* [x] Comunicación frontend-backend.
-* [x] Abstracción del repositorio.
-* [x] Manejo centralizado de errores.
-* [x] Modelo inicial de usuarios.
-* [x] Modelo inicial de chats y mensajes.
-* [x] ADR de la decisión arquitectónica.
+* [x] Autenticación (registro, ingreso, cierre de sesión) con contraseña cifrada
+* [x] Persistencia en Supabase (PostgreSQL)
+* [x] Búsqueda, filtros por sector y orden por precio, calificación o cotizaciones
+* [x] Perfil del puesto, comparador de canasta y cotizaciones sin duplicados
+* [x] Pedidos con envío, recojo en puesto o tercero autorizado (código de entrega)
+* [x] Precios promedio y evolución semanal
+* [x] Calificaciones y reseñas
+* [x] Chat cliente-comerciante
+* [x] Favoritos y mapa del mercado por pasillos
+* [x] Panel del comerciante y panel de administración
+* [x] Interfaz Angular con landing de captación
+* [x] Pruebas unitarias e integración, integración continua y Dockerfile
 
 ### Pendiente
 
-* [ ] Registro de usuarios.
-* [ ] Persistencia mediante base de datos.
-* [ ] Hash seguro de contraseñas.
-* [ ] Chat e historial de mensajes.
-* [ ] Cotización.
-* [ ] Reservas.
-* [ ] Búsqueda y filtros por sector.
-* [ ] Calificaciones y reseñas.
-* [ ] Seguimiento de pedidos.
-* [ ] Información de puestos y productos.
+* [ ] Carga de datos abiertos reales (CENAMA y MIDAGRI) para los precios referenciales
+* [ ] Despliegue en la nube (Azure) con las cuentas del equipo
+* [ ] Sesiones persistentes (hoy se guardan en memoria)
+* [ ] Prueba de la interfaz en Firefox y Edge
 
 ---
 
-## 13. Evidencias del Laboratorio
+## 12. Estado del Proyecto
 
-La evaluación arquitectónica cuenta con las siguientes evidencias principales:
-
-| Evidencia | Descripción                             |
-| :-------- | :-------------------------------------- |
-| **E-08**  | Arquitectura N Capas del proyecto       |
-| **E-09**  | Diagrama de clases del diseño v0.1      |
-| **E-10**  | Diagrama de componentes del diseño v0.2 |
-| **E-11**  | Abstracción del repositorio             |
-| **E-12**  | Manejo centralizado de errores          |
-| **E-13**  | Matriz de hallazgos                     |
-| **E-14**  | Métricas de diseño                      |
-| **E-15**  | ADR-001                                 |
-| **E-16**  | Evidencia de compilación y ejecución    |
-| **E-17**  | Evidencia funcional del login           |
-
----
-
-## 14. Estado del Proyecto
-
-**Versión actual:** `v0.2`
+**Versión actual:** `v0.4.0`
 **Estado:** En desarrollo
 **Tipo:** Proyecto académico
-**Módulo implementado:** Autenticación
-
----
-
-
