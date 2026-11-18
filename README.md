@@ -379,9 +379,9 @@ mvn clean package
 mvn test
 ```
 
-53 pruebas JUnit 5 + Mockito sobre las reglas de negocio (no necesitan base de datos): hash de contraseñas,
-sesiones, autenticación, búsqueda y orden, comparador de canasta, cotizaciones sin duplicados y pedidos con
-sus tres modalidades de entrega.
+61 pruebas JUnit 5 + Mockito sobre las reglas de negocio (no necesitan base de datos): hash de contraseñas,
+sesiones, autenticación, búsqueda y orden, comparador de canasta, cotizaciones sin duplicados, pedidos con
+sus tres modalidades de entrega y calificaciones de comerciantes.
 
 ### Ejecución
 

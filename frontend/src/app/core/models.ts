@@ -38,4 +38,7 @@ export interface PrecioPromedio { producto: string; icono: string; unidad: strin
 export interface ProductoConteo { producto: string; icono: string; cantidad: number; }
 export interface ResumenPrecios { promedios: PrecioPromedio[]; masCotizados: ProductoConteo[]; masComprados: ProductoConteo[]; }
 
+export interface Resena { id: number; usuario: string; puntaje: number; comentario: string | null; fecha: string; }
+export interface ResenaResultado { calificacion: number; numCalificaciones: number; resena: Resena; }
+
 export interface LoginResponse { exitoso: boolean; mensaje: string; usuarioId: number; nombre: string; token: string; }
