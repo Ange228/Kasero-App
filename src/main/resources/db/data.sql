@@ -85,3 +85,6 @@ JOIN productos p ON p.id = pr.producto_id
 JOIN (VALUES (1, 1.03), (2, 1.07), (3, 1.04)) AS f(semanas, factor) ON TRUE
 WHERE p.nombre IN ('Papa', 'Cebolla', 'Tomate', 'Zanahoria', 'Fresa', 'Plátano de seda')
   AND NOT EXISTS (SELECT 1 FROM precios_historial);
+
+-- Horario por defecto (se puede ajustar por casero con los datos reales de la entrevista)
+UPDATE comerciantes SET horario = 'Lunes a sábado · 5:00 a. m. a 2:00 p. m.' WHERE horario IS NULL;

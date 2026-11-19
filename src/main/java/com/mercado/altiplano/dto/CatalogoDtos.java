@@ -17,7 +17,8 @@ public final class CatalogoDtos {
     public record Comerciante(int id, String nombre, String iniciales, int nroPuesto, int pasillo,
                               String seccion, String sector, List<String> metodosPago,
                               String tieneCaseros, double calificacion, int numCalificaciones,
-                              int cotizaciones, BigDecimal precioMedio, List<String> productos) {}
+                              int cotizaciones, BigDecimal precioMedio, List<String> productos,
+                              String horario) {}
 
     public record ComercianteDetalle(Comerciante comerciante, List<PrecioItem> precios,
                                      List<String> modalidades) {}

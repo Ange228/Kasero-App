@@ -2,7 +2,6 @@ import { Component, effect, inject, input, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { Api } from '../core/api.service';
 import { Auth, mensajeError } from '../core/auth.service';
-import { Canasta } from '../core/canasta.service';
 import { iconoProducto } from '../core/iconos';
 import { ComercianteDetalle, Resena } from '../core/models';
 import { Estrellas } from '../shared/estrellas';
@@ -41,36 +40,29 @@ import { Icono } from '../shared/icono';
 
         <div class="tabs" role="tablist">
           <button type="button" role="tab" [class.on]="tab() === 'prod'" (click)="tab.set('prod')">Productos</button>
-          <button type="button" role="tab" [class.on]="tab() === 'sobre'" (click)="tab.set('sobre')">Sobre nosotros</button>
+          <button type="button" role="tab" [class.on]="tab() === 'sobre'" (click)="tab.set('sobre')">Sobre {{ d()!.comerciante.nombre }}</button>
           <button type="button" role="tab" [class.on]="tab() === 'opiniones'" (click)="tab.set('opiniones')">Opiniones ({{ opiniones().length }})</button>
         </div>
 
         @if (tab() === 'prod') {
+          <p class="suave" style="margin-bottom:12px">Lo más vendido de {{ d()!.comerciante.nombre }} y a cuánto está hoy. Para pedir algo, cotiza por el chat.</p>
           <div style="overflow-x:auto">
             <table>
-              <thead><tr><th>Producto</th><th class="num">Precio</th><th>Actualizado</th><th>Cantidad</th><th></th></tr></thead>
+              <thead><tr><th>Producto</th><th class="num">Precio</th><th>Actualizado</th></tr></thead>
               <tbody>
                 @for (p of d()!.precios; track p.productoId) {
                   <tr>
                     <td><span class="prod"><app-icono [nombre]="ico(p.nombre)" [tam]="18" /> {{ p.nombre }}</span></td>
                     <td class="num precio">{{ p.precio | soles }} / {{ p.unidad }}</td>
                     <td class="suave">{{ p.actualizado | fecha }}</td>
-                    <td>
-                      <label class="solo-lectores" [for]="'c' + p.productoId">Cantidad de {{ p.nombre }}</label>
-                      <input class="cant" [id]="'c' + p.productoId" type="number" min="0.5" step="0.5" [value]="cantidades[p.productoId] ?? 1"
-                             (input)="cantidades[p.productoId] = +$any($event.target).value">
-                    </td>
-                    <td><button type="button" class="btn sec" (click)="agregar(p.productoId)"><app-icono nombre="plus" [tam]="16" /> Agregar</button></td>
                   </tr>
                 }
               </tbody>
             </table>
           </div>
           <div class="fila envolver" style="margin-top:20px">
-            <a class="btn" [routerLink]="['/cotizar', d()!.comerciante.id]"><app-icono nombre="receipt" [tam]="18" /> Cotizar / Reservar</a>
-            <a class="btn sec" routerLink="/comparar"><app-icono nombre="scale" [tam]="18" /> Comparar canasta</a>
-            <button type="button" class="btn fantasma" (click)="chatear()"><app-icono nombre="message-circle" [tam]="18" /> Chatear</button>
-            <span class="suave">En tu canasta: {{ canasta.cantidad() }} producto(s)</span>
+            <button type="button" class="btn" (click)="chatear()"><app-icono nombre="receipt" [tam]="18" /> Cotizar / Reservar</button>
+            <a class="btn sec" routerLink="/comparar"><app-icono nombre="scale" [tam]="18" /> Comparar producto</a>
             @if (errorChat()) { <span class="msg error" role="alert">{{ errorChat() }}</span> }
           </div>
         } @else if (tab() === 'opiniones') {
@@ -88,9 +80,15 @@ import { Icono } from '../shared/icono';
             <p class="vacio">Todavía no hay opiniones escritas. Si ya compraste aquí, califica desde <a routerLink="/pedidos">Mis pedidos</a>.</p>
           }
         } @else {
-          <div class="tarjeta">
-            <p>{{ d()!.comerciante.nombre }} atiende en el pasillo {{ d()!.comerciante.pasillo }}, puesto {{ d()!.comerciante.nroPuesto }}, sección {{ d()!.comerciante.seccion }}.</p>
-            <p style="margin-top:10px">¿Tiene caseros fijos? <strong>{{ d()!.comerciante.tieneCaseros }}</strong></p>
+          <div class="tarjeta detalles">
+            <div class="det"><span class="ic"><app-icono nombre="map-pin" [tam]="20" /></span>
+              <div><span class="suave">Pasillo</span><strong>{{ d()!.comerciante.pasillo }}</strong></div></div>
+            <div class="det"><span class="ic"><app-icono nombre="store" [tam]="20" /></span>
+              <div><span class="suave">Puesto</span><strong>{{ d()!.comerciante.nroPuesto }}</strong></div></div>
+            <div class="det"><span class="ic"><app-icono nombre="layers" [tam]="20" /></span>
+              <div><span class="suave">Sección</span><strong>{{ d()!.comerciante.seccion }}</strong></div></div>
+            <div class="det"><span class="ic"><app-icono nombre="clock" [tam]="20" /></span>
+              <div><span class="suave">Horario de atención</span><strong>{{ d()!.comerciante.horario || 'Por confirmar' }}</strong></div></div>
           </div>
         }
       }
@@ -107,13 +105,17 @@ import { Icono } from '../shared/icono';
     .resumen { gap: 18px; margin-bottom: 14px; }
     .promedio { font: 600 3rem var(--font-titulo); letter-spacing: -0.05em; }
     .op { margin-bottom: 10px; display: grid; gap: 6px; }
+    .detalles { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 22px; padding: 26px; }
+    .det { display: flex; align-items: center; gap: 14px; }
+    .det div { display: grid; gap: 2px; }
+    .det strong { font-size: 1.05rem; }
+    .ic { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 14px; background: var(--verde-cl); color: var(--verde-osc); flex: none; }
   `
 })
 export class Puesto {
   private api = inject(Api);
   private auth = inject(Auth);
   private router = inject(Router);
-  protected canasta = inject(Canasta);
   protected ico = iconoProducto;
 
   readonly id = input.required<string>();
@@ -121,7 +123,6 @@ export class Puesto {
   protected error = signal('');
   protected tab = signal<'prod' | 'sobre' | 'opiniones'>('prod');
   protected opiniones = signal<Resena[]>([]);
-  protected cantidades: Record<number, number> = {};
 
   constructor() {
     effect(() => {
@@ -144,10 +145,5 @@ export class Puesto {
       next: c => this.router.navigate(['/chat', c.id]),
       error: e => this.errorChat.set(mensajeError(e))
     });
-  }
-
-  protected agregar(productoId: number) {
-    const p = this.d()!.precios.find(x => x.productoId === productoId)!;
-    this.canasta.agregar({ productoId, nombre: p.nombre, unidad: p.unidad, icono: p.icono, cantidad: this.cantidades[productoId] || 1 });
   }
 }

@@ -21,7 +21,7 @@ class CatalogoServiceTest {
     private CatalogoService servicio;
 
     private static ComBase com(int id, String nombre, String seccion, String sector, double cal, int cot) {
-        return new ComBase(id, nombre, id, id, seccion, sector, "Yape y Plin", "Sí", cal, 10, cot);
+        return new ComBase(id, nombre, id, id, seccion, sector, "Yape y Plin", "Sí", cal, 10, cot, "Lunes a sábado");
     }
 
     private static PrecioItem precio(int pid, String nombre, String p) {
