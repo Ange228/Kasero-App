@@ -1,48 +1,41 @@
 import { AfterViewChecked, Component, DestroyRef, ElementRef, inject, input, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 import { interval } from 'rxjs';
 import { Api } from '../core/api.service';
 import { mensajeError } from '../core/auth.service';
 import { Mensaje } from '../core/models';
 import { Icono } from '../shared/icono';
 
-/** Conversación con un casero. Se actualiza sola cada pocos segundos. */
+/** Hilo de mensajes de una conversación (se incrusta en la bandeja). Se actualiza solo cada pocos segundos. */
 @Component({
   selector: 'app-chat',
-  imports: [FormsModule, RouterLink, Icono],
+  imports: [FormsModule, Icono],
   template: `
-    <div class="contenedor pagina caja">
-      <a routerLink="/chats" class="volver"><app-icono nombre="arrow-right" [tam]="16" class="atras" /> Cotizar / Reservar</a>
+    <section class="hilo" #hilo aria-live="polite" aria-label="Conversación">
+      @if (error() && !mensajes().length) {
+        <div class="msg error" role="alert">{{ error() }}</div>
+      }
+      @for (m of mensajes(); track m.id) {
+        <div class="burbuja" [class.mia]="m.mio">
+          <p>{{ m.texto }}</p>
+          <span class="hora">{{ hora(m.fecha) }}</span>
+        </div>
+      } @empty {
+        @if (!error()) { <p class="vacio">Escribe el primer mensaje, por ejemplo: «Casera, ¿tiene papa amarilla?»</p> }
+      }
+    </section>
 
-      <section class="hilo" #hilo aria-live="polite" aria-label="Conversación">
-        @if (error() && !mensajes().length) {
-          <div class="msg error" role="alert">{{ error() }}</div>
-        }
-        @for (m of mensajes(); track m.id) {
-          <div class="burbuja" [class.mia]="m.mio">
-            <p>{{ m.texto }}</p>
-            <span class="hora">{{ hora(m.fecha) }}</span>
-          </div>
-        } @empty {
-          @if (!error()) { <p class="vacio">Escribe el primer mensaje, por ejemplo: «Casera, ¿tiene papa yungay?»</p> }
-        }
-      </section>
-
-      @if (error() && mensajes().length) { <div class="msg error" role="alert">{{ error() }}</div> }
-      <form class="envio" (ngSubmit)="enviar()">
-        <label for="texto" class="solo-lectores">Mensaje</label>
-        <input id="texto" name="texto" [(ngModel)]="texto" maxlength="500" autocomplete="off" placeholder="Escribe un mensaje…">
-        <button class="btn" [disabled]="!texto.trim() || enviando()" aria-label="Enviar mensaje"><app-icono nombre="arrow-right" [tam]="20" /></button>
-      </form>
-    </div>
+    @if (error() && mensajes().length) { <div class="msg error" role="alert">{{ error() }}</div> }
+    <form class="envio" (ngSubmit)="enviar()">
+      <label for="texto" class="solo-lectores">Mensaje</label>
+      <input id="texto" name="texto" [(ngModel)]="texto" maxlength="500" autocomplete="off" placeholder="Escribe un mensaje…">
+      <button class="btn" [disabled]="!texto.trim() || enviando()" aria-label="Enviar mensaje"><app-icono nombre="arrow-right" [tam]="20" /></button>
+    </form>
   `,
   styles: `
-    .caja { max-width: 760px; display: grid; gap: 12px; }
-    .volver { display: inline-flex; align-items: center; gap: 6px; text-decoration: none; font-size: .9rem; }
-    .atras { transform: rotate(180deg); }
-    .hilo { background: var(--tarjeta); border: 1px solid var(--borde); border-radius: var(--radio); padding: 16px; height: min(60vh, 520px); overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+    :host { display: flex; flex-direction: column; gap: 12px; min-height: 0; flex: 1; }
+    .hilo { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding: 4px 2px; }
     .burbuja { max-width: 78%; background: var(--verde-cl); border-radius: 16px 16px 16px 4px; padding: 10px 14px; align-self: flex-start; }
     .burbuja.mia { align-self: flex-end; background: var(--verde-osc); color: #fff; border-radius: 16px 16px 4px 16px; }
     .burbuja p { white-space: pre-wrap; word-break: break-word; }
@@ -65,7 +58,7 @@ export class Chat implements AfterViewChecked {
   constructor() {
     queueMicrotask(() => {
       this.refrescar();
-      // Consulta mensajes nuevos cada 4 segundos mientras la pantalla esté abierta
+      // Consulta mensajes nuevos cada 4 segundos mientras la conversación esté abierta
       interval(4000).pipe(takeUntilDestroyed(this.destroy)).subscribe(() => this.refrescar());
     });
   }

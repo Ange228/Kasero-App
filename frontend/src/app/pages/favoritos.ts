@@ -18,7 +18,7 @@ import { PuestoCard } from '../shared/puesto-card';
       } @else if (cargando()) {
         <p class="cargando" role="status">Cargando…</p>
       } @else if (lista().length) {
-        <div class="grid g2">@for (c of lista(); track c.id) { <app-puesto-card [c]="c" /> }</div>
+        <div class="grid g2">@for (c of lista(); track c.id) { <app-puesto-card [c]="c" [conChat]="true" /> }</div>
       } @else {
         <div class="vacio">Todavía no guardaste puestos.<br>Pulsa el corazón en el perfil de tu casera de siempre.<br><a routerLink="/mercado">Buscar puestos</a></div>
       }

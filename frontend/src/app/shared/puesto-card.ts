@@ -1,5 +1,6 @@
-import { Component, input } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Component, inject, input } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
+import { Api } from '../core/api.service';
 import { Comerciante } from '../core/models';
 import { FavBoton } from './fav-boton';
 import { Icono } from './icono';
@@ -26,6 +27,9 @@ import { SolesPipe } from './formatos';
         @if (c().precioMedio != null) { <span class="precio">{{ c().precioMedio | soles }}</span> }
       </div>
       <a class="btn sec block" [routerLink]="['/puesto', c().id]">Pedir <app-icono nombre="arrow-right" [tam]="18" /></a>
+      @if (conChat()) {
+        <button type="button" class="btn block" (click)="chatear()"><app-icono nombre="message-circle" [tam]="18" /> Cotizar / Reservar</button>
+      }
     </article>
   `,
   styles: `
@@ -35,10 +39,19 @@ import { SolesPipe } from './formatos';
     .quien strong { font-size: 1.1rem; }
     .dato { display: flex; gap: 6px; align-items: center; }
     .destacada { justify-self: start; }
+    .btn.block + .btn.block { margin-top: -4px; }
     .precio-fila { padding-top: 12px; border-top: 1px solid var(--borde); }
   `
 })
 export class PuestoCard {
   readonly c = input.required<Comerciante>();
   readonly etiqueta = input('');
+  /** Muestra el botón que abre el chat con el casero (p. ej. en Favoritos). */
+  readonly conChat = input(false);
+  private api = inject(Api);
+  private router = inject(Router);
+
+  protected chatear() {
+    this.api.abrirChat(this.c().id).subscribe(chat => this.router.navigate(['/chats', chat.id]));
+  }
 }

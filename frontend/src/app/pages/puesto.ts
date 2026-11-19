@@ -142,7 +142,7 @@ export class Puesto {
     }
     this.errorChat.set('');
     this.api.abrirChat(+this.id()).subscribe({
-      next: c => this.router.navigate(['/chat', c.id]),
+      next: c => this.router.navigate(['/chats', c.id]),
       error: e => this.errorChat.set(mensajeError(e))
     });
   }

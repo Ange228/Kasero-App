@@ -1,5 +1,5 @@
 import { inject } from '@angular/core';
-import { CanActivateFn, Router, Routes } from '@angular/router';
+import { CanActivateFn, Router, Routes, UrlSegment } from '@angular/router';
 import { Auth } from './core/auth.service';
 
 /** Las pantallas de pedidos exigen sesión iniciada. */
@@ -36,8 +36,13 @@ export const routes: Routes = [
   { path: 'pedido/:id', canActivate: [requiereSesion], title: 'Confirmar pedido · Kasero', loadComponent: () => import('./pages/pedido').then(m => m.Pedido) },
   { path: 'precios', title: 'Precios · Kasero', loadComponent: () => import('./pages/precios').then(m => m.Precios) },
   { path: 'pedidos', canActivate: [requiereSesion], title: 'Mis pedidos · Kasero', loadComponent: () => import('./pages/pedidos').then(m => m.Pedidos) },
-  { path: 'chats', canActivate: [requiereSesion], title: 'Cotizar y reservar · Kasero', loadComponent: () => import('./pages/chats').then(m => m.Chats) },
-  { path: 'chat/:id', canActivate: [requiereSesion], title: 'Conversación · Kasero', loadComponent: () => import('./pages/chat').then(m => m.Chat) },
+  {
+    // /chats y /chats/:id comparten la misma pantalla (bandeja) para que no se recargue al cambiar de conversación
+    matcher: (segs: UrlSegment[]) => segs[0]?.path === 'chats' && segs.length <= 2
+      ? (segs[1] ? { consumed: segs, posParams: { id: segs[1] } } : { consumed: segs }) : null,
+    canActivate: [requiereSesion], title: 'Cotizar y reservar · Kasero', loadComponent: () => import('./pages/chats').then(m => m.Chats)
+  },
+  { path: 'chat/:id', redirectTo: 'chats/:id' },
   { path: 'mapa', title: 'Caseros · Kasero', loadComponent: () => import('./pages/mapa').then(m => m.Mapa) },
   { path: 'favoritos', canActivate: [requiereSesion], title: 'Favoritos · Kasero', loadComponent: () => import('./pages/favoritos').then(m => m.FavoritosPagina) },
   { path: 'mi-puesto', canActivate: [soloComerciante], title: 'Mi puesto · Kasero', loadComponent: () => import('./pages/mi-puesto').then(m => m.MiPuesto) },
