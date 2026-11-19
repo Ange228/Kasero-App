@@ -12,8 +12,8 @@
         }
       </div>
       <ul class="datos">
-        <li><strong>+200</strong> puestos</li>
-        <li><strong>7</strong> sectores</li>
+        <li><strong>+30</strong> puestos</li>
+        <li><strong>4</strong> categorías</li>
         <li><strong>3</strong> formas de entrega</li>
         <li><strong>Yape</strong> y Plin</li>
       </ul>
@@ -42,7 +42,7 @@
 <section class="franja">
   <div class="contenedor chips-sector">
     @for (s of sectores; track s.nombre) {
-      <a class="chip" routerLink="/buscar" [queryParams]="{ sector: s.nombre }"><app-icono [nombre]="s.icono" [tam]="18" />{{ s.nombre }}</a>
+      <a class="chip" routerLink="/mercado" [queryParams]="{ sector: s.nombre }"><app-icono [nombre]="s.icono" [tam]="18" />{{ s.nombre }}</a>
     }
   </div>
 </section>

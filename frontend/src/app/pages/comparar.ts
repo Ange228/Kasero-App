@@ -12,8 +12,8 @@ import { Icono } from '../shared/icono';
   selector: 'app-comparar',
   imports: [RouterLink, Icono, SolesPipe],
   template: `
-    <div class="contenedor pagina">
-      <h1>Comparar precios</h1>
+    <section id="comparar">
+      <div class="seccion-t"><h2>Comparar precios</h2></div>
       <p class="suave" style="margin-bottom:18px">Elige un producto y mira quién lo tiene más barato hoy.</p>
 
       @if (sugeridos().length) {
@@ -78,7 +78,7 @@ import { Icono } from '../shared/icono';
       } @else {
         <div class="vacio" style="margin-top:20px">Elige un producto para ver la comparación.</div>
       }
-    </div>
+    </section>
   `,
   styles: `
     .otro { display: block; margin: 16px 0 6px; font-size: .9rem; color: var(--suave); }

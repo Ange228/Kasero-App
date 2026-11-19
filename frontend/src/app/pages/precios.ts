@@ -2,16 +2,17 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { Api } from '../core/api.service';
 import { mensajeError } from '../core/auth.service';
 import { iconoProducto } from '../core/iconos';
-import { deTemporada } from '../core/temporada';
+import { deTemporada, enTemporada } from '../core/temporada';
 import { EvolucionPrecios, ResumenPrecios } from '../core/models';
 import { SolesPipe } from '../shared/formatos';
 import { GraficoLineas } from '../shared/grafico-lineas';
 import { Icono } from '../shared/icono';
+import { Comparar } from './comparar';
 
 /** Pantalla 7 · Información de precios: promedios y productos con más movimiento. */
 @Component({
   selector: 'app-precios',
-  imports: [Icono, GraficoLineas, SolesPipe],
+  imports: [Icono, GraficoLineas, SolesPipe, Comparar],
   template: `
     <div class="contenedor pagina">
       <h1>Precios del mercado</h1>
@@ -40,6 +41,8 @@ import { Icono } from '../shared/icono';
             } @empty { <p class="suave">No hay productos de temporada con precio este mes.</p> }
           </section>
         </div>
+
+        <app-comparar />
 
         @if (evolucion(); as ev) {
           @if (grafica().length) {
@@ -120,7 +123,7 @@ export class Precios {
   /** Productos de temporada este mes que tienen precio en algún puesto. */
   protected temporada = computed(() => {
     const nombres = deTemporada();
-    return (this.r()?.promedios ?? []).filter(p => nombres.includes(p.producto));
+    return (this.r()?.promedios ?? []).filter(p => enTemporada(p.producto, nombres));
   });
 
   constructor() {

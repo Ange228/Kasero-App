@@ -23,8 +23,8 @@ import { Logo } from './logo';
           <nav aria-label="Explora">
             <h3>Explora</h3>
             <a routerLink="/mercado">Mercado</a>
-            <a routerLink="/buscar">Buscar puestos</a>
-            <a routerLink="/comparar">Comparar canasta</a>
+            <a routerLink="/mercado">Buscar puestos</a>
+            <a routerLink="/precios" fragment="comparar">Comparar precios</a>
             <a routerLink="/precios">Precios del mercado</a>
           </nav>
 
