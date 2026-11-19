@@ -7,7 +7,7 @@ import {
   LucideMessageCircle, LucideMinus, LucidePackage, LucidePlus, LucideReceipt, LucideScale, LucideSearch,
   LucideShieldCheck, LucideShoppingBasket, LucideSmartphone, LucideSoup, LucideSprout, LucideStar,
   LucideStore, LucideTag, LucideTrash2, LucideTrendingDown, LucideTrendingUp, LucideTruck, LucideUser,
-  LucideUserCheck, LucideUsers, LucideWallet, LucideWheat, LucideX
+  LucideUserCheck, LucideUserPlus, LucideUsers, LucideWallet, LucideWheat, LucideX, LucideCalendarDays, LucideSun
 } from '@lucide/angular';
 
 /** Iconos disponibles en la app (Lucide). Se agregan aquí para que Angular solo empaquete los usados. */
@@ -24,7 +24,8 @@ const REGISTRO: Record<string, unknown> = {
   'shopping-basket': LucideShoppingBasket, 'smartphone': LucideSmartphone, 'soup': LucideSoup,
   'sprout': LucideSprout, 'star': LucideStar, 'store': LucideStore, 'tag': LucideTag, 'trash-2': LucideTrash2,
   'trending-down': LucideTrendingDown, 'trending-up': LucideTrendingUp, 'truck': LucideTruck, 'user': LucideUser,
-  'user-check': LucideUserCheck, 'users': LucideUsers, 'wallet': LucideWallet, 'wheat': LucideWheat, 'x': LucideX
+  'user-check': LucideUserCheck, 'user-plus': LucideUserPlus, 'users': LucideUsers, 'wallet': LucideWallet,
+  'wheat': LucideWheat, 'x': LucideX, 'calendar-days': LucideCalendarDays, 'sun': LucideSun
 };
 
 @Component({

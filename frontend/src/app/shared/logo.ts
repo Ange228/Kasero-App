@@ -11,7 +11,7 @@ import { Component, input } from '@angular/core';
       <circle cx="32" cy="38" r="4.5" fill="#e8891d"/>
     </svg>
     @if (texto()) {
-      <span class="nombre"><strong>Kasero</strong><small>Mercado del Altiplano</small></span>
+      <span class="nombre"><strong>Kasero</strong></span>
     }
   `,
   styles: `

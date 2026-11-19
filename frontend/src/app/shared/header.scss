@@ -6,33 +6,47 @@
 }
 .interior { height: var(--alto-header); gap: 24px; }
 .marca { color: var(--texto); text-decoration: none; flex: none; }
+
+/* El peso de la letra es el mismo en reposo y activo para que el enlace marcado no empuje a los demás */
 .enlaces { display: flex; gap: 4px; margin-inline: auto; }
 .enlaces a {
   display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px; border-radius: 999px;
-  color: var(--texto); text-decoration: none; font-weight: 500; font-size: .95rem;
+  color: var(--texto); text-decoration: none; font-weight: 500; font-size: .95rem; white-space: nowrap;
 }
 .enlaces a:hover { background: var(--verde-cl); }
-.enlaces a.activo { background: var(--verde-cl); color: var(--verde-osc); font-weight: 600; }
+.enlaces a.activo { background: var(--verde-cl); color: var(--verde-osc); }
 @media (prefers-color-scheme: dark) { .enlaces a.activo { color: var(--verde); } }
-.acciones { display: flex; gap: 10px; align-items: center; }
-.acciones .btn.fantasma { color: var(--texto); }
-/* En pantallas medianas, Favoritos y Mensajes se muestran solo con icono para que el header no se desborde */
-@media (min-width: 1181px) and (max-width: 1359px) {
-  .acciones .txt { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
-  .acciones .btn.fantasma { padding: 0 12px; }
+
+.acciones { display: flex; gap: 8px; align-items: center; }
+.icono-btn, .cuenta-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-width: 48px; height: 48px;
+  border-radius: 999px; border: 1.5px solid var(--borde); background: transparent; color: var(--texto); cursor: pointer; text-decoration: none;
 }
-.hamburguesa {
-  display: none; background: none; border: 0; color: var(--texto); width: 48px; height: 48px;
-  border-radius: 12px; cursor: pointer; place-items: center;
+.icono-btn { border-color: transparent; }
+.icono-btn:hover, .cuenta-btn:hover { background: var(--verde-cl); }
+.cuenta-btn { padding: 0 12px; }
+.cuenta-btn:has(.ini) { padding: 0 12px 0 6px; border-color: var(--verde); color: var(--verde-osc); font-weight: 600; }
+.ini { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: var(--verde-osc); color: #fff; font-weight: 600; text-transform: uppercase; }
+.nom { max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.cuenta { position: relative; }
+.panel {
+  position: absolute; right: 0; top: calc(100% + 10px); min-width: 240px; padding: 8px; display: grid; gap: 2px;
+  background: var(--superficie); border: 1px solid var(--borde); border-radius: 18px; box-shadow: 0 18px 40px rgba(0, 0, 0, .14);
 }
-@media (max-width: 1180px) {
+.panel a, .panel button {
+  display: flex; align-items: center; gap: 12px; min-height: 46px; padding: 0 14px; border-radius: 12px; border: 0; background: none;
+  color: var(--texto); text-decoration: none; font: inherit; font-weight: 500; text-align: left; cursor: pointer; width: 100%;
+}
+.panel a:hover, .panel button:hover, .panel a.activo { background: var(--verde-cl); }
+.panel hr { border: 0; border-top: 1px solid var(--borde); margin: 6px 4px; }
+.quien { padding: 8px 14px 4px; font-size: .85rem; color: var(--suave); }
+.solo-movil { display: none; }
+
+@media (max-width: 1080px) {
   .interior { height: 68px; }
-  .hamburguesa { display: grid; margin-left: auto; }
-  .enlaces, .acciones { display: none; }
-  .abierto .enlaces, .abierto .acciones {
-    display: flex; flex-direction: column; align-items: stretch; position: absolute; left: 0; right: 0;
-    background: var(--superficie); padding: 12px 16px; border-bottom: 1px solid var(--borde); margin: 0; gap: 6px;
-  }
-  .abierto .enlaces { top: 68px; }
-  .abierto .acciones { top: auto; position: static; flex-direction: row; }
+  .enlaces { display: none; }
+  .acciones { margin-left: auto; }
+  .solo-movil { display: grid; gap: 2px; }
 }
+@media (max-width: 480px) { .nom { display: none; } .cuenta-btn:has(.ini) { padding: 0 8px 0 6px; } }
