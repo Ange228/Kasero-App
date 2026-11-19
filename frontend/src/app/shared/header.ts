@@ -16,7 +16,14 @@ interface Enlace { ruta: string; texto: string; icono: string; exacto?: boolean;
         <a routerLink="/" class="marca" aria-label="Kasero, ir al inicio" (click)="menu.set(false)"><app-logo [tam]="44" /></a>
 
         @if (enInicio() && !auth.logueado()) {
-          <!-- Página de inicio: solo ingresar y crear cuenta -->
+          <!-- Página de inicio: enlaces públicos + ingresar y crear cuenta (sin menú hamburguesa) -->
+          <nav class="enlaces" aria-label="Principal">
+            @for (e of enlaces(); track e.ruta) {
+              <a [routerLink]="e.ruta" routerLinkActive="activo">
+                <app-icono [nombre]="e.icono" [tam]="18" /><span>{{ e.texto }}</span>
+              </a>
+            }
+          </nav>
           <div class="acciones">
             <a routerLink="/acceso" class="btn fantasma">Ingresar</a>
             <a routerLink="/acceso" [queryParams]="{ modo: 'registro' }" class="btn">Crear cuenta</a>
