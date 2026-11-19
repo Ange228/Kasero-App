@@ -14,7 +14,7 @@ interface Pasillo { numero: number; puestos: Comerciante[]; }
   imports: [RouterLink, Icono],
   template: `
     <div class="contenedor pagina">
-      <h1>Mapa del mercado</h1>
+      <h1>Caseros del mercado</h1>
       <p class="suave sub"><app-icono nombre="map-pin" [tam]="14" /> Mercado del Altiplano · Av. Progreso, Arequipa</p>
 
       @if (error()) {

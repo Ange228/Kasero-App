@@ -14,7 +14,7 @@ import { Icono } from '../shared/icono';
   imports: [FormsModule, RouterLink, Icono],
   template: `
     <div class="contenedor pagina caja">
-      <a routerLink="/chats" class="volver"><app-icono nombre="arrow-right" [tam]="16" class="atras" /> Mensajes</a>
+      <a routerLink="/chats" class="volver"><app-icono nombre="arrow-right" [tam]="16" class="atras" /> Cotizar / Reservar</a>
 
       <section class="hilo" #hilo aria-live="polite" aria-label="Conversación">
         @if (error() && !mensajes().length) {

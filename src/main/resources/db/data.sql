@@ -88,3 +88,9 @@ WHERE p.nombre IN ('Papa', 'Cebolla', 'Tomate', 'Zanahoria', 'Fresa', 'Plátano 
 
 -- Horario por defecto (se puede ajustar por casero con los datos reales de la entrevista)
 UPDATE comerciantes SET horario = 'Lunes a sábado · 5:00 a. m. a 2:00 p. m.' WHERE horario IS NULL;
+
+-- La app clasifica solo en Frutas, Verduras, Carnes y Abarrotes: la comida preparada se reubica en esas categorias
+UPDATE comerciantes SET sector_id = (SELECT id FROM sectores WHERE nombre = 'Carnes')
+ WHERE nombre = 'Luis Alberto' AND sector_id = (SELECT id FROM sectores WHERE nombre = 'Comida');
+UPDATE productos SET sector_id = (SELECT id FROM sectores WHERE nombre = 'Carnes') WHERE nombre = 'Pollo a la brasa' AND sector_id = (SELECT id FROM sectores WHERE nombre = 'Comida');
+UPDATE productos SET sector_id = (SELECT id FROM sectores WHERE nombre = 'Abarrotes') WHERE sector_id = (SELECT id FROM sectores WHERE nombre = 'Comida');
