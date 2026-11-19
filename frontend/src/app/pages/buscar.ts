@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { Api } from '../core/api.service';
 import { mensajeError } from '../core/auth.service';
+import { NOMBRES_CATEGORIA } from '../core/categorias';
 import { iconoSector } from '../core/iconos';
 import { Comerciante, Sector } from '../core/models';
 import { Icono } from '../shared/icono';
@@ -14,13 +15,21 @@ import { PuestoCard } from '../shared/puesto-card';
   imports: [FormsModule, RouterLink, Icono, PuestoCard],
   template: `
     <div class="contenedor pagina">
-      <h1>Buscar</h1>
-      <form class="busca" (ngSubmit)="aplicar({ q: texto || null })" role="search">
-        <app-icono nombre="search" [tam]="20" />
-        <label for="q" class="solo-lectores">Buscar</label>
-        <input id="q" name="q" [(ngModel)]="texto" placeholder="Buscar productos, comerciantes o puestos…">
-        <button class="btn">Buscar</button>
-      </form>
+      <section class="portada">
+        <p class="claro">Mercado del Altiplano · Arequipa</p>
+        <h1>Tradición del mercado a tu canasta</h1>
+        <form class="busca" (ngSubmit)="aplicar({ q: texto || null })" role="search">
+          <app-icono nombre="search" [tam]="20" />
+          <label for="q" class="solo-lectores">Buscar</label>
+          <input id="q" name="q" [(ngModel)]="texto" placeholder="Buscar productos, comerciantes o puestos…">
+          <button class="btn naranja">Explorar</button>
+        </form>
+        <div class="datos">
+          <span><app-icono nombre="store" [tam]="16" /> +200 puestos</span>
+          <span><app-icono nombre="layers" [tam]="16" /> Frutas, verduras, carnes y abarrotes</span>
+          <span><app-icono nombre="soup" [tam]="16" /> Comida tradicional</span>
+        </div>
+      </section>
 
       <div class="cuerpo">
         <aside class="tarjeta filtros">
@@ -65,8 +74,14 @@ import { PuestoCard } from '../shared/puesto-card';
     </div>
   `,
   styles: `
-    .busca { display: flex; align-items: center; gap: 10px; background: var(--tarjeta); border: 1.5px solid var(--borde); border-radius: 999px; padding: 6px 6px 6px 18px; color: var(--suave); }
-    .busca input { border: 0; background: transparent; min-height: 44px; padding: 0; }
+    .portada { background: linear-gradient(160deg, var(--verde-prof), var(--verde-osc)); color: #fff; border-radius: 24px; padding: 36px; }
+    .portada h1 { margin: 6px 0 22px; max-width: 640px; }
+    .claro { color: #9fd3a3; }
+    .datos { display: flex; gap: 22px; flex-wrap: wrap; margin-top: 20px; font-size: .9rem; color: #d3e6d3; }
+    .datos span { display: inline-flex; align-items: center; gap: 6px; }
+    @media (max-width: 600px) { .portada { padding: 24px 18px; } }
+    .busca { display: flex; align-items: center; gap: 10px; background: #fff; border-radius: 999px; padding: 6px 6px 6px 18px; color: #5b665b; max-width: 640px; }
+    .busca input { border: 0; background: transparent; min-height: 44px; padding: 0; color: #1b251b; }
     .busca input:focus { outline: none; }
     .cuerpo { display: grid; grid-template-columns: 260px 1fr; gap: 24px; margin-top: 22px; align-items: start; }
     .filtros { position: sticky; top: calc(var(--alto-header) + 16px); display: grid; gap: 12px; }
@@ -91,7 +106,7 @@ export class Buscar {
   protected error = signal('');
 
   constructor() {
-    this.api.sectores().subscribe(s => this.sectores.set(s));
+    this.api.sectores().subscribe(s => this.sectores.set(s.filter(x => NOMBRES_CATEGORIA.includes(x.nombre))));
     effect(() => {
       const [q, sector, orden] = [this.q() ?? '', this.sector() ?? '', this.orden() || 'precio_asc'];
       this.texto = q;

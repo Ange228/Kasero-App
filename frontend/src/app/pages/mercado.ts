@@ -1,31 +1,24 @@
 import { Component, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { forkJoin, of, catchError } from 'rxjs';
 import { Api } from '../core/api.service';
 import { Auth, mensajeError } from '../core/auth.service';
-import { iconoProducto, iconoSector } from '../core/iconos';
-import { Noticia, Pedido, Promocion, Sector } from '../core/models';
+import { CATEGORIAS } from '../core/categorias';
+import { iconoProducto } from '../core/iconos';
+import { Noticia, Pedido, Promocion } from '../core/models';
 import { ESTADO, SolesPipe } from '../shared/formatos';
 import { Icono } from '../shared/icono';
 
-/** Pantalla 1 · Inicio del mercado: categorías, promociones, pedidos y noticias. */
+/** Pantalla 1 · Inicio del mercado: categorías de presentación, promociones y, con sesión, pedidos y noticias. */
 @Component({
   selector: 'app-mercado',
-  imports: [FormsModule, RouterLink, Icono, SolesPipe],
+  imports: [RouterLink, Icono, SolesPipe],
   template: `
     <div class="contenedor pagina">
-      <section class="portada">
-        <p class="suave claro">Mercado del Altiplano · Arequipa</p>
-        <h1>Tradición del mercado a tu canasta</h1>
-        <form class="busca" (ngSubmit)="buscar()" role="search">
-          <label for="q" class="solo-lectores">Buscar</label>
-          <app-icono nombre="search" [tam]="20" />
-          <input id="q" name="q" [(ngModel)]="q" placeholder="Buscar productos, comerciantes o puestos…">
-          <button class="btn naranja">Explorar</button>
-        </form>
-        <div class="datos"><span><app-icono nombre="store" [tam]="16" /> +200 puestos</span><span><app-icono nombre="layers" [tam]="16" /> Diversos sectores</span><span><app-icono nombre="soup" [tam]="16" /> Comida tradicional</span></div>
-      </section>
+      <header class="encabezado">
+        <p class="suave">Mercado del Altiplano · Arequipa</p>
+        <h1>El mercado de hoy</h1>
+      </header>
 
       @if (error()) {
         <div class="msg error" role="alert">{{ error() }}</div>
@@ -33,12 +26,14 @@ import { Icono } from '../shared/icono';
       } @else if (cargando()) {
         <p class="cargando" role="status">Cargando el mercado…</p>
       } @else {
-        <div class="seccion-t"><h2>Categorías</h2><a routerLink="/buscar">Ver todo <app-icono nombre="arrow-right" [tam]="16" /></a></div>
-        <div class="grid g3">
-          @for (s of sectores(); track s.id) {
-            <a class="tarjeta sector" routerLink="/buscar" [queryParams]="{ sector: s.nombre }">
-              <span class="ic"><app-icono [nombre]="icoSector(s.nombre)" [tam]="28" /></span>{{ s.nombre }}
-            </a>
+        <div class="seccion-t"><h2>Lo que encuentras</h2></div>
+        <div class="grid g4">
+          @for (c of categorias; track c.nombre) {
+            <div class="tarjeta sector">
+              <span class="ic"><app-icono [nombre]="c.icono" [tam]="30" /></span>
+              <strong>{{ c.nombre }}</strong>
+              <span class="suave">{{ c.detalle }}</span>
+            </div>
           }
         </div>
 
@@ -61,46 +56,38 @@ import { Icono } from '../shared/icono';
               <span><strong>Pedido #{{ p.id }}</strong> · {{ p.comerciante }}<br><span class="etq">{{ estado[p.estado] || p.estado }}</span></span>
               <span class="precio">{{ p.total | soles }}</span>
             </div>
-          } @empty { <p class="suave">Aún no tienes pedidos. ¡Arma tu primera cotización!</p> }
-        }
+          } @empty { <p class="suave">Aún no tienes pedidos. Cotiza con tu casero favorito.</p> }
 
-        <div class="seccion-t"><h2>Noticias y actividades</h2></div>
-        <div class="grid g2">
-          @for (n of noticias(); track n.titulo) {
-            <div class="tarjeta fila"><span class="avatar"><app-icono nombre="megaphone" [tam]="22" /></span><div><strong>{{ n.titulo }}</strong><p class="suave">{{ n.detalle }}</p></div></div>
-          }
-        </div>
+          <div class="seccion-t"><h2>Noticias y actividades</h2></div>
+          <div class="grid g2">
+            @for (n of noticias(); track n.titulo) {
+              <div class="tarjeta fila"><span class="avatar"><app-icono nombre="megaphone" [tam]="22" /></span><div><strong>{{ n.titulo }}</strong><p class="suave">{{ n.detalle }}</p></div></div>
+            }
+          </div>
+        }
       }
     </div>
   `,
   styles: `
-    .portada { background: linear-gradient(160deg, var(--verde-prof), var(--verde-osc)); color: #fff; border-radius: 24px; padding: 36px; }
-    .portada h1 { margin: 6px 0 22px; max-width: 640px; }
-    .claro { color: #9fd3a3; }
-    .busca { display: flex; align-items: center; gap: 10px; background: #fff; border-radius: 999px; padding: 6px 6px 6px 18px; color: #5b665b; max-width: 640px; }
-    .busca input { border: 0; background: transparent; min-height: 44px; color: #1b251b; padding: 0; }
-    .busca input:focus { outline: none; }
-    .datos { display: flex; gap: 22px; flex-wrap: wrap; margin-top: 20px; font-size: .9rem; color: #d3e6d3; }
-    .datos span { display: inline-flex; align-items: center; gap: 6px; }
-    .sector { text-align: center; color: var(--texto); text-decoration: none; display: grid; gap: 10px; justify-items: center; padding: 22px 10px; font-weight: 500; }
-    .sector:hover { border-color: var(--verde); }
-    .ic { display: grid; place-items: center; width: 56px; height: 56px; border-radius: 16px; background: var(--verde-cl); color: var(--verde-osc); }
+    .encabezado h1 { margin: 4px 0 0; }
+    .g4 { grid-template-columns: repeat(4, 1fr); }
+    @media (max-width: 900px) { .g4 { grid-template-columns: repeat(2, 1fr); } }
+    .sector { text-align: center; display: grid; gap: 8px; justify-items: center; padding: 26px 14px; cursor: default; }
+    .sector strong { font: 600 1.15rem var(--font-titulo); }
+    .sector .suave { font-size: .88rem; }
+    .ic { display: grid; place-items: center; width: 60px; height: 60px; border-radius: 18px; background: var(--verde-cl); color: var(--verde-osc); }
     .promo { display: grid; gap: 8px; text-decoration: none; color: var(--texto); }
     .promo:hover { border-color: var(--verde); }
     .promo strong { display: inline-flex; gap: 6px; align-items: center; }
-    @media (max-width: 600px) { .portada { padding: 24px 18px; } }
   `
 })
 export class Mercado {
   private api = inject(Api);
-  private router = inject(Router);
   protected auth = inject(Auth);
   protected estado = ESTADO;
-  protected icoSector = iconoSector;
   protected icoProd = iconoProducto;
+  protected categorias = CATEGORIAS;
 
-  protected q = '';
-  protected sectores = signal<Sector[]>([]);
   protected promos = signal<Promocion[]>([]);
   protected noticias = signal<Noticia[]>([]);
   protected pedidos = signal<Pedido[]>([]);
@@ -112,13 +99,11 @@ export class Mercado {
   protected cargar() {
     this.cargando.set(true); this.error.set('');
     forkJoin({
-      sectores: this.api.sectores(), promos: this.api.promociones(), noticias: this.api.noticias(),
+      promos: this.api.promociones(), noticias: this.api.noticias(),
       pedidos: this.auth.logueado() ? this.api.pedidos().pipe(catchError(() => of([]))) : of([])
     }).subscribe({
-      next: r => { this.sectores.set(r.sectores); this.promos.set(r.promos); this.noticias.set(r.noticias); this.pedidos.set(r.pedidos); this.cargando.set(false); },
+      next: r => { this.promos.set(r.promos); this.noticias.set(r.noticias); this.pedidos.set(r.pedidos); this.cargando.set(false); },
       error: e => { this.error.set(mensajeError(e)); this.cargando.set(false); }
     });
   }
-
-  protected buscar() { this.router.navigate(['/buscar'], { queryParams: { q: this.q || null } }); }
 }
