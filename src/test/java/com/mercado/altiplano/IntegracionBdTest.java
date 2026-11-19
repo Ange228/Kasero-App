@@ -58,6 +58,7 @@ class IntegracionBdTest {
         try (Connection c = ds.getConnection()) {
             ScriptUtils.executeSqlScript(c, new ClassPathResource("db/schema.sql"));
             ScriptUtils.executeSqlScript(c, new ClassPathResource("db/data.sql"));
+            ScriptUtils.executeSqlScript(c, new ClassPathResource("db/caseros.sql"));
         }
     }
 
@@ -110,14 +111,16 @@ class IntegracionBdTest {
     void elEsquemaYLosDatosSeAplicanVariasVecesSinError() throws Exception {
         aplicarScripts();
         aplicarScripts();
-        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM comerciantes", Integer.class)).isEqualTo(10);
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM comerciantes", Integer.class)).isEqualTo(66);
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM sectores", Integer.class)).isEqualTo(7);
     }
 
     @Test @Order(2)
     void lasCaserasDelExcelSeCargaronConPuestosAleatoriosYSeccionesDeComida() {
-        assertThat(jdbc.queryForList("SELECT nro_puesto FROM comerciantes", Integer.class))
+        // Las 10 caseras de la entrevista tienen puestos distintos; las 56 adicionales usan numeros 1-35 por pasillo
+        assertThat(jdbc.queryForList("SELECT nro_puesto FROM comerciantes WHERE pasillo < 10 OR pasillo IN (18, 19)", Integer.class))
                 .hasSize(10).doesNotHaveDuplicates().allMatch(n -> n >= 1 && n <= 35);
+        assertThat(jdbc.queryForList("SELECT nro_puesto FROM comerciantes", Integer.class)).hasSize(66).allMatch(n -> n >= 1 && n <= 35);
         assertThat(jdbc.queryForList("SELECT seccion FROM comerciantes", String.class))
                 .noneMatch(s -> s.toLowerCase().contains("tecnolog") || s.toLowerCase().contains("ropa"))
                 .contains("Comida preparada", "Abarrotes y panadería");
@@ -136,7 +139,7 @@ class IntegracionBdTest {
     void laBusquedaYElPerfilFuncionanContraLaBase() {
         assertThat(catalogo.buscar("papa", null, null)).extracting(Comerciante::nombre).contains("Nilda", "Angela", "Lourdes");
         assertThat(catalogo.buscar("pollo", null, null)).extracting(Comerciante::nombre).contains("Melany", "Luis Alberto");
-        assertThat(catalogo.buscar(null, "Carnes", "calificacion")).hasSize(4); // Micaela, María, Melany y Luis Alberto (comida preparada reubicada)
+        assertThat(catalogo.buscar(null, "Carnes", "calificacion")).hasSize(18); // 4 de la entrevista (con Luis Alberto) + 14 adicionales
         assertThat(catalogo.detalle(idNilda).precios()).hasSize(4);
         assertThat(catalogo.promociones()).isNotEmpty();
         assertThat(catalogo.noticias()).hasSize(2);
@@ -273,12 +276,12 @@ class IntegracionBdTest {
     @Test @Order(13)
     void elAdministradorGestionaPuestosProductosNoticiasYPromociones() {
         int sectorVerduras = jdbc.queryForObject("SELECT id FROM sectores WHERE nombre = 'Verduras'", Integer.class);
-        int nuevo = admin.crearPuesto(adminId, new PuestoForm("Rosa", 30, 8, "Verduras", sectorVerduras, "Yape", "Sí"));
-        assertThat(admin.puestos(adminId)).hasSize(11);
-        assertThatThrownBy(() -> admin.crearPuesto(adminId, new PuestoForm("rosa", 31, 8, "Verduras", sectorVerduras, "Yape", "Sí")))
+        int nuevo = admin.crearPuesto(adminId, new PuestoForm("Zulema", 30, 8, "Verduras", sectorVerduras, "Yape", "Sí"));
+        assertThat(admin.puestos(adminId)).hasSize(67);
+        assertThatThrownBy(() -> admin.crearPuesto(adminId, new PuestoForm("zulema", 31, 8, "Verduras", sectorVerduras, "Yape", "Sí")))
                 .isInstanceOf(ApiException.class).hasMessageContaining("Ya existe");
 
-        admin.actualizarPuesto(adminId, nuevo, new PuestoForm("Rosa", 31, 8, "Verduras y hierbas", sectorVerduras, "Yape y Plin", "Algunas veces"));
+        admin.actualizarPuesto(adminId, nuevo, new PuestoForm("Zulema", 31, 8, "Verduras y hierbas", sectorVerduras, "Yape y Plin", "Algunas veces"));
         assertThat(jdbc.queryForObject("SELECT seccion FROM comerciantes WHERE id = ?", String.class, nuevo)).isEqualTo("Verduras y hierbas");
 
         int choclo = admin.crearProducto(adminId, new ProductoForm("Choclo", sectorVerduras, "unidad"));
@@ -297,7 +300,7 @@ class IntegracionBdTest {
         assertThat(admin.puestos(adminId).stream().filter(p -> p.id() == nuevo).findFirst().orElseThrow().cuenta()).isEqualTo("beto@correo.com");
 
         admin.cambiarActivo(adminId, nuevo, false);
-        assertThat(catalogo.buscar("rosa", null, null)).isEmpty();           // un puesto inactivo no aparece en la búsqueda
+        assertThat(catalogo.buscar("zulema", null, null)).isEmpty();           // un puesto inactivo no aparece en la búsqueda
 
         assertThatThrownBy(() -> admin.puestos(demo)).isInstanceOf(ApiException.class);
     }
