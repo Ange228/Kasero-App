@@ -1,123 +1,135 @@
-import { Component, effect, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Api } from '../core/api.service';
 import { mensajeError } from '../core/auth.service';
-import { Canasta } from '../core/canasta.service';
 import { iconoProducto } from '../core/iconos';
-import { ComparacionResponse, Producto } from '../core/models';
+import { ComparacionResponse, PrecioPromedio, Producto, ResumenPrecios } from '../core/models';
 import { SolesPipe } from '../shared/formatos';
 import { Icono } from '../shared/icono';
 
-/** Pantalla 5 · Comparar la misma canasta entre puestos. */
+/** Comparar un producto a la vez entre los puestos que lo venden, con el precio promedio como referencia. */
 @Component({
   selector: 'app-comparar',
-  imports: [FormsModule, RouterLink, Icono, SolesPipe],
+  imports: [RouterLink, Icono, SolesPipe],
   template: `
     <div class="contenedor pagina">
       <h1>Comparar precios</h1>
-      <p class="suave" style="margin-bottom:18px">Canasta de referencia: la misma canasta cotizada en distintos puestos para decidir mejor.</p>
+      <p class="suave" style="margin-bottom:18px">Elige un producto y mira quién lo tiene más barato hoy.</p>
 
-      <section class="tarjeta">
-        <strong class="tit"><app-icono nombre="shopping-basket" [tam]="18" /> Tu canasta</strong>
-        @if (canasta.items().length) {
-          <table>
-            <tbody>
-              @for (i of canasta.items(); track i.productoId) {
-                <tr>
-                  <td><span class="prod"><app-icono [nombre]="ico(i.nombre)" [tam]="18" /> {{ i.nombre }}</span></td>
-                  <td>
-                    <label class="solo-lectores" [for]="'q' + i.productoId">Cantidad de {{ i.nombre }}</label>
-                    <input class="cant" [id]="'q' + i.productoId" type="number" min="0.5" step="0.5" [value]="i.cantidad"
-                           (change)="canasta.cambiarCantidad(i.productoId, +$any($event.target).value)"> {{ i.unidad }}
-                  </td>
-                  <td class="num"><button type="button" class="btn fantasma" (click)="canasta.quitar(i.productoId)" [attr.aria-label]="'Quitar ' + i.nombre"><app-icono nombre="trash-2" [tam]="16" /></button></td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        } @else {
-          <p class="suave" style="margin:10px 0">Agrega productos para comparar el total entre puestos.</p>
-        }
-        <div class="fila envolver" style="margin-top:14px">
-          <label class="solo-lectores" for="np">Agregar producto</label>
-          <select id="np" [(ngModel)]="nuevo" style="max-width:320px">
-            <option [ngValue]="0">Agregar producto…</option>
-            @for (p of productos(); track p.id) { <option [ngValue]="p.id">{{ p.nombre }} ({{ p.unidad }})</option> }
+      @if (sugeridos().length) {
+        <section class="tarjeta">
+          <strong>Los más comprados</strong>
+          <div class="chips">
+            @for (p of sugeridos(); track p.id) {
+              <button type="button" class="chip" [class.on]="elegido() === p.id" (click)="elegir(p.id)">
+                <app-icono [nombre]="ico(p.nombre)" [tam]="16" />{{ p.nombre }}
+              </button>
+            }
+          </div>
+          <label for="otro" class="otro">Otro producto</label>
+          <select id="otro" (change)="elegir(+$any($event.target).value)" [value]="elegido()">
+            <option value="0">Elegir producto…</option>
+            @for (p of productos(); track p.id) { <option [value]="p.id" [selected]="elegido() === p.id">{{ p.nombre }} ({{ p.unidad }})</option> }
           </select>
-          <button type="button" class="btn" (click)="agregar()"><app-icono nombre="plus" [tam]="16" /> Agregar</button>
-          <button type="button" class="btn fantasma" (click)="canasta.vaciar()">Vaciar</button>
-        </div>
-      </section>
+        </section>
+      }
 
       @if (error()) { <div class="msg error" role="alert">{{ error() }}</div> }
 
-      @if (res(); as r) {
-        <div class="seccion-t"><h2>Resultado</h2></div>
-        @if (r.completos.length) {
-          <div style="overflow-x:auto">
-            <table>
-              <thead><tr><th>Comerciante</th><th class="num">Precio total</th><th class="num">Diferencia</th><th></th></tr></thead>
-              <tbody>
-                @for (f of r.completos; track f.comerciante.id) {
-                  <tr [class.mejor]="f.masEconomico">
-                    <td>
-                      <strong>{{ f.comerciante.nombre }}</strong>
-                      @if (f.masEconomico) { <span class="etq"><app-icono nombre="badge-check" [tam]="14" /> Más económico</span> }
-                      <br><span class="suave">★ {{ f.comerciante.calificacion.toFixed(1) }} · Pasillo {{ f.comerciante.pasillo }} · Puesto {{ f.comerciante.nroPuesto }}</span>
-                    </td>
-                    <td class="num precio">{{ f.total | soles }}</td>
-                    <td class="num">{{ f.masEconomico ? '—' : '+ ' + (f.diferencia | soles) }}</td>
-                    <td><a class="btn sec" [routerLink]="['/cotizar', f.comerciante.id]">Cotizar</a></td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          </div>
-        } @else {
-          <div class="vacio">Ningún puesto vende toda la canasta. Prueba quitando algún producto.</div>
+      @if (elegidoProducto(); as prod) {
+        <div class="seccion-t"><h2>{{ prod.nombre }} por {{ prod.unidad }}</h2></div>
+
+        @if (promedio(); as pm) {
+          <section class="tarjeta promedio fila">
+            <div><span class="suave">Precio promedio</span><strong class="precio grande">{{ pm.promedio | soles }}</strong></div>
+            <div><span class="suave">Más bajo</span><strong>{{ pm.minimo | soles }}</strong></div>
+            <div><span class="suave">Más alto</span><strong>{{ pm.maximo | soles }}</strong></div>
+            <div><span class="suave">Puestos</span><strong>{{ pm.puestos }}</strong></div>
+          </section>
         }
-        @if (r.incompletos.length) {
-          <div class="seccion-t"><h2>No venden toda la canasta</h2></div>
-          @for (f of r.incompletos; track f.comerciante.id) {
-            <div class="tarjeta" style="margin-bottom:8px">{{ f.comerciante.nombre }} — le falta: {{ f.faltantes.join(', ') }}</div>
+
+        @if (cargando()) {
+          <p class="cargando" role="status">Comparando…</p>
+        } @else if (res(); as r) {
+          @if (r.completos.length) {
+            <div style="overflow-x:auto">
+              <table>
+                <thead><tr><th>Casero</th><th class="num">Precio</th><th class="num">Frente al promedio</th><th></th></tr></thead>
+                <tbody>
+                  @for (f of r.completos; track f.comerciante.id) {
+                    <tr [class.mejor]="f.masEconomico">
+                      <td>
+                        <strong>{{ f.comerciante.nombre }}</strong>
+                        @if (f.masEconomico) { <span class="etq"><app-icono nombre="badge-check" [tam]="14" /> Más económico</span> }
+                        <br><span class="suave">{{ f.comerciante.calificacion.toFixed(1) }} · Pasillo {{ f.comerciante.pasillo }} · Puesto {{ f.comerciante.nroPuesto }}</span>
+                      </td>
+                      <td class="num precio">{{ f.total | soles }}</td>
+                      <td class="num">{{ frente(f.total) }}</td>
+                      <td><a class="btn sec" [routerLink]="['/puesto', f.comerciante.id]">Pedir</a></td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          } @else {
+            <div class="vacio">Ningún casero vende este producto por ahora.</div>
           }
         }
-        <p class="suave info"><app-icono nombre="info" [tam]="16" /> Solo se comparan puestos que venden todos los productos de la misma canasta.</p>
+      } @else {
+        <div class="vacio" style="margin-top:20px">Elige un producto para ver la comparación.</div>
       }
     </div>
   `,
   styles: `
-    .tit { display: inline-flex; gap: 8px; align-items: center; margin-bottom: 8px; }
-    .prod { display: inline-flex; gap: 8px; align-items: center; }
+    .otro { display: block; margin: 16px 0 6px; font-size: .9rem; color: var(--suave); }
+    select { max-width: 320px; }
+    .promedio { gap: 36px; flex-wrap: wrap; margin-bottom: 18px; }
+    .promedio div { display: grid; gap: 2px; }
+    .grande { font-size: 1.8rem; }
     .mejor td { background: var(--verde-cl); }
-    .info { display: flex; gap: 6px; align-items: center; margin-top: 14px; }
   `
 })
 export class Comparar {
   private api = inject(Api);
-  protected canasta = inject(Canasta);
   protected ico = iconoProducto;
 
   protected productos = signal<Producto[]>([]);
+  protected resumen = signal<ResumenPrecios | null>(null);
+  protected elegido = signal(0);
   protected res = signal<ComparacionResponse | null>(null);
+  protected cargando = signal(false);
   protected error = signal('');
-  protected nuevo = 0;
+
+  /** Los productos que más se compran en general van primero. */
+  protected sugeridos = computed(() => {
+    const orden = this.resumen()?.masComprados.map(m => m.producto) ?? [];
+    const todos = this.productos();
+    const top = orden.map(n => todos.find(p => p.nombre === n)).filter((p): p is Producto => !!p);
+    return (top.length ? top : todos).slice(0, 8);
+  });
+  protected elegidoProducto = computed(() => this.productos().find(p => p.id === this.elegido()) ?? null);
+  protected promedio = computed<PrecioPromedio | null>(() =>
+    this.resumen()?.promedios.find(p => p.producto === this.elegidoProducto()?.nombre) ?? null);
 
   constructor() {
-    this.api.productos().subscribe(p => this.productos.set(p));
-    // Recalcula la comparación cada vez que cambia la canasta
-    effect(() => {
-      const items = this.canasta.items().map(i => ({ productoId: i.productoId, cantidad: i.cantidad }));
-      this.error.set('');
-      if (!items.length) { this.res.set(null); return; }
-      this.api.comparar(items).subscribe({ next: r => this.res.set(r), error: e => this.error.set(mensajeError(e)) });
+    this.api.productos().subscribe({ next: p => this.productos.set(p), error: e => this.error.set(mensajeError(e)) });
+    this.api.resumenPrecios().subscribe({ next: r => this.resumen.set(r), error: () => this.resumen.set(null) });
+  }
+
+  protected elegir(id: number) {
+    this.elegido.set(id); this.res.set(null); this.error.set('');
+    if (!id) return;
+    this.cargando.set(true);
+    this.api.comparar([{ productoId: id, cantidad: 1 }]).subscribe({
+      next: r => { this.res.set(r); this.cargando.set(false); },
+      error: e => { this.error.set(mensajeError(e)); this.cargando.set(false); }
     });
   }
 
-  protected agregar() {
-    const p = this.productos().find(x => x.id === this.nuevo);
-    if (p) this.canasta.agregar({ productoId: p.id, nombre: p.nombre, unidad: p.unidad, icono: p.icono, cantidad: 1 });
-    this.nuevo = 0;
+  protected frente(precio: number) {
+    const pm = this.promedio();
+    if (!pm || !pm.promedio) return '—';
+    const d = ((precio - pm.promedio) / pm.promedio) * 100;
+    return Math.abs(d) < 0.5 ? 'Igual al promedio' : (d > 0 ? '+' : '') + d.toFixed(0) + '%';
   }
 }
